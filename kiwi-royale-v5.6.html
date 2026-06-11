@@ -1,0 +1,3834 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>KIWI ROYALE V5.6</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%; background: #1a0a2e; color: #fff;
+    font-family: 'Segoe UI', sans-serif;
+    user-select: none; -webkit-user-select: none; touch-action: manipulation;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; width: 100%; min-height: 100svh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+  .screen.active { display: flex; }
+
+  /* ── MENU SCREEN ── */
+  #screen-menu {
+    background: radial-gradient(ellipse at 50% 30%, #2a0a4e 0%, #1a0a2e 70%);
+    gap: 0;
+  }
+  #menu-title-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 36px; }
+  #menu-game-title {
+    font-size: clamp(2rem, 9vw, 3rem); font-weight: 900; letter-spacing: 4px;
+    color: #ffe100; text-shadow: 0 0 24px #ffe10088, 0 0 48px #ffe10044;
+    text-align: center; line-height: 1.1;
+  }
+  #menu-subtitle { font-size: 0.7rem; color: #5a3a8e; letter-spacing: 2px; text-transform: uppercase; }
+  #menu-island-emoji { font-size: 3.5rem; margin-bottom: 8px; filter: drop-shadow(0 0 14px #ffe10066); }
+
+  .menu-btn {
+    width: min(260px, 80vw); padding: 15px 24px; border-radius: 12px; font-size: 1rem;
+    font-weight: 700; letter-spacing: 1px; text-align: center; cursor: pointer;
+    border: 2px solid; transition: all 0.18s; -webkit-tap-highlight-color: transparent;
+    display: block; margin: 8px auto;
+  }
+  #btn-new-game { background: #ffe100; border-color: #ffe100; color: #1a0a2e; box-shadow: 0 0 18px #ffe10055; }
+  #btn-new-game:active { transform: scale(0.96); box-shadow: 0 0 8px #ffe10055; }
+  #btn-login-local { background: transparent; border-color: #5a3a8e; color: #aaa; }
+  #btn-login-local:active { background: #2a1a4e; transform: scale(0.96); }
+
+  #menu-version { font-size: 0.6rem; color: #3a2a5e; letter-spacing: 1px; margin-top: 36px; text-align: center; }
+  #menu-version span { color: #5a4a8e; }
+
+  /* ── NICK SCREEN ── */
+  #screen-nick { gap: 14px; }
+  #nick-title { font-size: 1.3rem; font-weight: 900; color: #ffe100; letter-spacing: 2px; text-align: center; }
+  #nick-sub { font-size: 0.75rem; color: #888; text-align: center; }
+  #nick-input-wrap { position: relative; width: min(280px, 85vw); }
+  #nick-input {
+    width: 100%; padding: 14px 16px; font-size: 1.1rem; font-weight: 700; letter-spacing: 1px;
+    background: #2a1a4e; border: 2px solid #5a3a8e; border-radius: 10px;
+    color: #fff; outline: none; text-align: center; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #nick-input:focus { border-color: #ffe100; box-shadow: 0 0 10px #ffe10044; }
+  #nick-char-count { text-align: center; font-size: 0.65rem; color: #5a3a8e; margin-top: 4px; }
+  #nick-char-count.warn { color: #ff8800; }
+  #btn-nick-confirm {
+    width: min(200px, 70vw); padding: 14px; background: #ffe100; border: none;
+    border-radius: 10px; color: #1a0a2e; font-size: 1rem; font-weight: 900;
+    cursor: pointer; letter-spacing: 1px; transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent; opacity: 0.4; pointer-events: none;
+  }
+  #btn-nick-confirm.ready { opacity: 1; pointer-events: auto; }
+  #btn-nick-confirm.ready:active { transform: scale(0.96); }
+
+  /* ── NICK FULL SCREEN (saves full) ── */
+  #screen-saves-full { gap: 16px; text-align: center; }
+  #saves-full-title { font-size: 1.3rem; font-weight: 900; color: #ff4444; }
+  #saves-full-msg { font-size: 0.85rem; color: #bbb; line-height: 1.6; }
+  .btn-saves-action {
+    width: min(240px,80vw); padding: 13px; border-radius: 10px; font-size: 0.9rem;
+    font-weight: 700; letter-spacing: 0.5px; cursor: pointer; border: 2px solid;
+    transition: all 0.15s; -webkit-tap-highlight-color: transparent; margin: 4px auto; display: block;
+  }
+  #btn-saves-back { background: transparent; border-color: #5a3a8e; color: #aaa; }
+  #btn-saves-back:active { background: #2a1a4e; }
+
+  /* ── LOCAL LOGIN SCREEN ── */
+  #screen-local-login { gap: 14px; }
+  #local-login-title { font-size: 1.2rem; font-weight: 900; color: #ffe100; text-align: center; }
+  #local-login-list { width: min(300px, 90vw); display: flex; flex-direction: column; gap: 10px; }
+  .save-card {
+    background: #2a1a4e; border: 2px solid #4a3a7e; border-radius: 10px;
+    padding: 12px 16px; cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 12px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .save-card:active { background: #3a2a5e; border-color: #7a5aae; }
+  .save-card-avatar { font-size: 1.8rem; }
+  .save-card-info { flex: 1; }
+  .save-card-nick { font-size: 1rem; font-weight: 700; color: #ffe100; }
+  .save-card-stats { font-size: 0.65rem; color: #888; margin-top: 2px; }
+  .save-card-delete {
+    font-size: 0.7rem; color: #4a2a6e; cursor: pointer;
+    padding: 4px 6px; border-radius: 6px; border: 1px solid #3a2a5e;
+    background: transparent; transition: all 0.12s; -webkit-tap-highlight-color: transparent;
+  }
+  .save-card-delete:active { background: #4a0a0a; border-color: #ff4444; color: #ff6666; }
+  #local-login-empty { font-size: 0.8rem; color: #5a3a8e; text-align: center; }
+  #btn-local-back { background: transparent; border-color: #5a3a8e; color: #aaa; }
+  #btn-local-back:active { background: #2a1a4e; }
+
+  /* ── LOBBY SCREEN ── */
+  #screen-lobby {
+    justify-content: flex-start; padding: 0; gap: 0;
+  }
+  #lobby-topbar {
+    width: 100%; background: #2a1a4e; border-bottom: 2px solid #3a2a6e;
+    padding: 8px 14px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+  }
+  #lobby-topbar-avatar { font-size: 1.5rem; }
+  #lobby-topbar-info { flex: 1; }
+  #lobby-topbar-nick { font-size: 0.85rem; font-weight: 700; color: #ffe100; letter-spacing: 0.5px; }
+  #lobby-topbar-stats { font-size: 0.65rem; color: #aaa; display: flex; gap: 10px; margin-top: 2px; }
+  #lobby-topbar-stats span { color: #fff; font-weight: 600; }
+
+  /* Daily earnings cap bar */
+  #daily-earnings-wrap { margin-top: 4px; }
+  #daily-earnings-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  #daily-earnings-label { font-size: 0.6rem; color: #9a6abe; white-space: nowrap; }
+  #daily-earnings-label span { color: #ffe100; font-weight: 700; }
+  #daily-earnings-bar-bg {
+    flex: 1; min-width: 60px; height: 6px; background: #1a0a2e; border-radius: 3px;
+    border: 1px solid #3a2a5e; overflow: hidden;
+  }
+  #daily-earnings-bar {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, #ffe100, #ffaa00);
+    transition: width 0.4s;
+  }
+  #daily-earnings-bar.full { background: linear-gradient(90deg, #ff4444, #ff8800); }
+  #daily-earnings-reset { font-size: 0.55rem; color: #5a3a8e; white-space: nowrap; }
+
+  #lobby-content { flex: 1; width: 100%; overflow-y: auto; padding: 14px; }
+
+  /* Tab content */
+  .tab-content { display: none; flex-direction: column; align-items: center; gap: 14px; }
+  .tab-content.active { display: flex; }
+
+  /* LOBBY TAB content */
+  #lobby-season-bar {
+    width: 100%; max-width: 400px; background: linear-gradient(90deg, #2a1a4e, #3a0a5e);
+    border: 1px solid #5a3a8e; border-radius: 8px; padding: 8px 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  #lobby-season-icon { font-size: 1.4rem; }
+  #lobby-season-info { flex: 1; }
+  #lobby-season-label { font-size: 0.6rem; color: #9a6abe; letter-spacing: 2px; text-transform: uppercase; }
+  #lobby-season-name { font-size: 0.9rem; font-weight: 700; color: #ffe100; }
+
+  #lobby-skin-preview {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  #lobby-skin-emoji-wrap {
+    width: 80px; height: 80px; background: #2a1a4e; border: 2px solid #5a3a8e;
+    border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    font-size: 3rem; box-shadow: 0 0 18px #5a3a8e44;
+  }
+  #lobby-skin-label { font-size: 0.65rem; color: #5a3a8e; letter-spacing: 1px; }
+
+  #btn-find-game {
+    width: min(220px, 75vw); padding: 16px; background: linear-gradient(135deg, #ffe100, #ffaa00);
+    border: none; border-radius: 14px; color: #1a0a2e; font-size: 1.05rem; font-weight: 900;
+    cursor: pointer; letter-spacing: 1px; transition: all 0.18s;
+    -webkit-tap-highlight-color: transparent; box-shadow: 0 0 20px #ffe10055;
+  }
+  #btn-find-game:active { transform: scale(0.96); box-shadow: 0 0 8px #ffe10055; }
+  #btn-find-game:disabled { opacity: 0.5; pointer-events: none; }
+
+  /* Searching animation */
+  #searching-overlay {
+    display: none; position: fixed; inset: 0; background: #000000cc;
+    flex-direction: column; align-items: center; justify-content: center;
+    z-index: 50; gap: 18px;
+  }
+  #searching-overlay.active { display: flex; }
+  #searching-title { font-size: 1.3rem; font-weight: 900; color: #ffe100; letter-spacing: 2px; }
+  #searching-dots { font-size: 2.5rem; animation: dotsAnim 1.2s steps(4, end) infinite; }
+  @keyframes dotsAnim {
+    0%   { content: ''; }
+    25%  { opacity: 0.4; }
+    50%  { opacity: 0.7; }
+    75%  { opacity: 1; }
+    100% { opacity: 0.4; }
+  }
+  #searching-radar {
+    width: 80px; height: 80px; border-radius: 50%;
+    border: 3px solid #ffe10033; position: relative; display: flex; align-items: center; justify-content: center;
+  }
+  #searching-radar::before {
+    content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%;
+    border: 3px solid #ffe100; animation: radarPing 1.5s ease-out infinite;
+  }
+  #searching-radar::after {
+    content: ''; position: absolute; width: 60%; height: 60%; border-radius: 50%;
+    border: 2px solid #ffe10066; animation: radarPing 1.5s ease-out 0.5s infinite;
+  }
+  @keyframes radarPing {
+    0%   { transform: scale(0.4); opacity: 1; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+  #searching-icon { font-size: 2rem; position: relative; z-index: 1; }
+  #searching-status { font-size: 0.8rem; color: #aaa; letter-spacing: 1px; animation: blink 1.4s ease infinite alternate; }
+  @keyframes blink { from { opacity: 0.4; } to { opacity: 1; } }
+  #btn-cancel-search {
+    margin-top: 8px; padding: 10px 28px; background: transparent; border: 2px solid #5a3a8e;
+    border-radius: 10px; color: #aaa; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px;
+    cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+  }
+  #btn-cancel-search:active { background: #2a1a4e; border-color: #ff4444; color: #ff6666; }
+
+  /* SZAFKA TAB */
+  #tab-szafka-wrap { width: 100%; max-width: 400px; }
+  #szafka-title { font-size: 0.7rem; color: #9a6abe; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  #szafka-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .szafka-item {
+    width: 80px; height: 80px; background: #2a1a4e; border: 2px solid #3a2a5e;
+    border-radius: 12px; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 4px; position: relative;
+    font-size: 2.2rem; transition: all 0.15s;
+  }
+  .szafka-item.equipped {
+    border-color: #ffe100; background: #2a1a3e;
+    box-shadow: 0 0 12px #ffe10055;
+  }
+  .szafka-item-label { font-size: 0.5rem; color: #5a3a8e; letter-spacing: 0.5px; }
+  .szafka-item.equipped .szafka-item-label { color: #ffe100; }
+  .szafka-equipped-badge {
+    display: none; position: absolute; top: -6px; right: -6px;
+    background: #ffe100; color: #1a0a2e; font-size: 0.45rem; font-weight: 900;
+    border-radius: 8px; padding: 2px 4px; letter-spacing: 0.5px;
+  }
+  .szafka-item.equipped .szafka-equipped-badge { display: block; }
+
+  /* SKLEP & USTAWIENIA EMPTY */
+  .tab-empty { color: #3a2a5e; font-size: 0.85rem; text-align: center; margin-top: 40px; }
+  .sklep-card {
+    background: #2a1a4e; border: 2px solid #4a3a7e; border-radius: 12px;
+    padding: 14px; display: flex; align-items: center; gap: 12px;
+  }
+  .sklep-card-icon { font-size: 2.4rem; flex-shrink: 0; }
+  .sklep-card-info { flex: 1; }
+  .sklep-card-name { font-size: 0.9rem; font-weight: 700; color: #ffe100; }
+  .sklep-card-desc { font-size: 0.65rem; color: #888; margin-top: 2px; }
+  .sklep-buy-btn {
+    padding: 9px 14px; background: linear-gradient(135deg,#ffe100,#ffaa00);
+    border: none; border-radius: 9px; color: #1a0a2e; font-size: 0.85rem;
+    font-weight: 900; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+  }
+  .sklep-buy-btn:active { transform: scale(0.94); }
+  .sklep-buy-btn.owned { background: #2a4a2a; border: 2px solid #44aa44; color: #44ff88; pointer-events: none; }
+
+  /* ── BOTTOM TABS ── */
+  #lobby-tabs {
+    width: 100%; background: #12082a; border-top: 2px solid #2a1a4e;
+    display: flex; flex-shrink: 0;
+  }
+  .tab-btn {
+    flex: 1; padding: 10px 4px 8px; display: flex; flex-direction: column;
+    align-items: center; gap: 3px; cursor: pointer; border: none;
+    background: transparent; color: #4a3a6e; font-size: 0.55rem; letter-spacing: 0.5px;
+    text-transform: uppercase; font-weight: 600; font-family: inherit;
+    transition: all 0.15s; -webkit-tap-highlight-color: transparent; border-top: 2px solid transparent;
+  }
+  .tab-btn .tab-icon { font-size: 1.2rem; }
+  .tab-btn.active { color: #ffe100; border-top-color: #ffe100; background: #1a0a2e; }
+  .tab-btn:not(.active):active { background: #1a0a2e88; }
+
+  /* ── GAME SCREEN ── */
+  #screen-game {
+    justify-content: flex-start; padding: 6px 8px 8px; gap: 5px; min-height: 100svh; align-items: center;
+  }
+  #title { font-size: 1.2rem; font-weight: 900; letter-spacing: 2px; color: #ffe100; text-shadow: 0 0 10px #ffe10088; flex-shrink: 0; }
+  #hud { width: 100%; max-width: 400px; background: #2a1a4e; border: 2px solid #5a3a8e; border-radius: 10px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  #hud-label { font-size: 0.8rem; color: #aaa; white-space: nowrap; }
+  #hp-bar-wrap { flex: 1; background: #1a0a2e; border-radius: 5px; height: 14px; overflow: hidden; border: 1px solid #5a3a8e; }
+  #hp-bar { height: 100%; background: linear-gradient(90deg,#ff4444,#ff8800); border-radius: 5px; transition: width 0.3s; }
+  #hp-text { font-size: 0.8rem; font-weight: bold; white-space: nowrap; min-width: 52px; text-align: right; }
+  #heal-bar-wrap { display: none; width: 100%; max-width: 400px; background: #0a2a0a; border: 1px solid #2a6a2a; border-radius: 6px; height: 10px; overflow: hidden; flex-shrink: 0; }
+  #heal-bar { height: 100%; background: linear-gradient(90deg,#22ff44,#44ffaa); border-radius: 6px; transition: width 0.4s; }
+  #heal-label { font-size: 0.65rem; color: #44ff88; text-align: center; flex-shrink: 0; }
+  #info-bar { width: 100%; max-width: 400px; display: flex; justify-content: space-between; font-size: 0.72rem; color: #bbb; padding: 0 2px; flex-shrink: 0; }
+  #info-bar span { color: #ffe100; font-weight: bold; }
+  #map-outer { width: 100%; max-width: 400px; background: #1a0a2e; border: 3px solid #5a3a8e; border-radius: 10px; overflow: hidden; position: relative; flex-shrink: 0; }
+  #map-size-shim { width: 100%; padding-bottom: 100%; pointer-events: none; }
+  #map-grid { position: absolute; inset: 4px; display: grid; gap: 3px; }
+  .cell { border-radius: 4px; background: #3a7a3a; display: flex; align-items: center; justify-content: center; font-size: clamp(0.9rem, 4vw, 1.4rem); line-height: 1; border: 1px solid #2a5a2a; overflow: hidden; position: relative; }
+  .item-img { width: 70%; height: 70%; object-fit: contain; display: block; pointer-events: none; image-rendering: pixelated; }
+  .eq-item-img { width: 80%; height: 80%; object-fit: contain; display: block; pointer-events: none; image-rendering: pixelated; }
+  .sklep-img { width: 2.4rem; height: 2.4rem; object-fit: contain; image-rendering: pixelated; flex-shrink: 0; }
+  .cell.storm { background: #6a3a8e !important; border-color: #9a6abe !important; }
+  .cell.forge    { background: #3a2a00 !important; border-color: #ffe100 !important; box-shadow: inset 0 0 6px #ffe10088; animation: forgeGlow 1.2s ease infinite alternate; }
+  @keyframes forgeGlow { from { box-shadow: inset 0 0 4px #ffe10066; } to { box-shadow: inset 0 0 12px #ffe100cc, 0 0 8px #ffe10044; } }
+  .cell.hl-forge  { outline: 2px solid #ffe100; outline-offset: -2px; }
+  .item-img.upgraded, .eq-item-img.upgraded { filter: drop-shadow(0 0 4px #ff4444) drop-shadow(0 0 8px #ff2200); }
+  .cell.hl-pickup { outline: 2px solid #44ff44; outline-offset: -2px; cursor: pointer; background: #1a4a1a !important; }
+  .cell.hl-item   { outline: 2px solid #ffe100; outline-offset: -2px; cursor: pointer; background: #3a2a00 !important; }
+  .cell.hl-attack { outline: 2px solid #ff4444; outline-offset: -2px; cursor: pointer; background: #4a0a0a !important; }
+  .cell.hl-use    { outline: 2px solid #44ffaa; outline-offset: -2px; background: #0a3a1a !important; }
+  .cell.flash-move { animation: aMove 0.18s ease; }
+  .cell.flash-hit  { animation: aHit  0.35s ease; }
+  .cell.flash-heal { animation: aHeal 0.5s ease; }
+  @keyframes aMove  { 0%{opacity:.4;transform:scale(.88)} 100%{opacity:1;transform:scale(1)} }
+  @keyframes aHit   { 0%{filter:brightness(3) saturate(2);transform:scale(1.18)} 100%{filter:brightness(1);transform:scale(1)} }
+  @keyframes aHeal  { 0%{filter:brightness(2) hue-rotate(90deg);transform:scale(1.1)} 100%{filter:brightness(1);transform:scale(1)} }
+  #map-outer.panning #map-grid { animation: aPan 0.2s cubic-bezier(.25,.46,.45,.94); }
+  @keyframes aPan { 0%{opacity:.5;transform:scale(.96)} 100%{opacity:1;transform:scale(1)} }
+  #minimap { position: absolute; top: 6px; right: 6px; width: 76px; height: 76px; background: #0a0518cc; border: 2px solid #5a3a8e; border-radius: 6px; z-index: 5; image-rendering: pixelated; }
+  #log { width: 100%; max-width: 400px; background: #12082a; border: 1px solid #3a2a6e; border-radius: 8px; padding: 5px 10px; font-size: 0.72rem; color: #ccc; min-height: 28px; line-height: 1.4; flex-shrink: 0; }
+  #bottom-area { width: 100%; max-width: 400px; display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-shrink: 0; }
+  #controls { display: grid; grid-template-areas: "ul up ur" "left mid right" "dl down dr"; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 5px; width: min(130px, 33vw); flex-shrink: 0; }
+  .btn-dir { background: #3a2a6e; border: 2px solid #7a5aae; border-radius: 8px; color: #fff; font-size: clamp(1rem,4vw,1.4rem); padding: 0; aspect-ratio: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; transition: background 0.1s, transform 0.1s; }
+  .btn-dir:active { background: #5a3a9e; transform: scale(0.90); }
+  .btn-dir.disabled { opacity: 0.3; pointer-events: none; }
+  #btn-mid { grid-area: mid; background: transparent; border-color: transparent; pointer-events: none; }
+  .btn-dir.up    { grid-area: up; }
+  .btn-dir.left  { grid-area: left; }
+  .btn-dir.right { grid-area: right; }
+  .btn-dir.down  { grid-area: down; }
+  .btn-dir.up-left    { grid-area: ul; }
+  .btn-dir.up-right   { grid-area: ur; }
+  .btn-dir.down-left  { grid-area: dl; }
+  .btn-dir.down-right { grid-area: dr; }
+  .btn-dir.diag { opacity: 0; pointer-events: none; border-color: #ffe100; background: #4a3a1e; display: flex; }
+  .btn-dir.diag.show { opacity: 1; pointer-events: auto; }
+  #eq-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  #eq-label { font-size: 0.6rem; color: #aaa; letter-spacing: 1px; text-transform: uppercase; }
+  #item-slot-label { font-size: 0.55rem; color: #9a6abe; letter-spacing: 1px; text-transform: uppercase; margin-top: 3px; text-align: center; }
+  #item-slot-wrap { display: flex; justify-content: center; }
+  .item-slot-box { border-color: #7a5aae !important; background: #1a0a3e !important; cursor: default !important; pointer-events: none; }
+  #eq-slots { display: flex; gap: 5px; }
+  .eq-slot { width: clamp(30px,9vw,42px); aspect-ratio: 1; background: #1a0a2e; border: 2px solid #4a3a7e; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: clamp(0.9rem,3.5vw,1.2rem); cursor: pointer; transition: border-color 0.15s, background 0.15s; position: relative; -webkit-tap-highlight-color: transparent; }
+  .eq-slot.active { border-color: #ffe100; background: #2a1a4e; box-shadow: 0 0 6px #ffe10066; }
+  .eq-slot-num { position: absolute; bottom: 1px; right: 3px; font-size: 0.5rem; color: #666; line-height: 1; }
+  #action-btns { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; width: min(80px,22vw); }
+  .btn-action { border-radius: 8px; font-size: clamp(0.55rem,2.2vw,0.7rem); font-weight: bold; padding: 8px 4px; text-align: center; letter-spacing: 0.5px; line-height: 1.3; border: 2px solid; transition: all 0.15s; -webkit-tap-highlight-color: transparent; }
+  .btn-action.off  { background:#2a1a3e; border-color:#4a3a6e; color:#555; opacity:.45; pointer-events:none; cursor:default; }
+  .btn-action.on   { background:#3a2a5e; border-color:#7a5aae; color:#ddd; opacity:1; pointer-events:auto; cursor:pointer; }
+  .btn-action.active-mode { background:#ffe100; border-color:#ffe100; color:#1a0a2e; opacity:1; pointer-events:auto; cursor:pointer; animation: btnPulse 0.8s ease infinite alternate; }
+  .btn-action.heal-mode { background:#22cc44; border-color:#44ff88; color:#fff; opacity:1; pointer-events:none; cursor:default; animation: healPulse 0.6s ease infinite alternate; }
+  @keyframes btnPulse { from{box-shadow:0 0 4px #ffe10066} to{box-shadow:0 0 14px #ffe100cc} }
+  @keyframes healPulse { from{box-shadow:0 0 4px #22ff4466} to{box-shadow:0 0 14px #22ff44cc} }
+  #overlay { position: fixed; inset: 0; background: #000000cc; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; gap: 14px; padding: 20px; }
+  #overlay h2 { font-size: 2rem; color: #ffe100; text-shadow: 0 0 16px #ffe10099; text-align: center; }
+  #overlay p  { font-size: 0.95rem; color: #ddd; text-align: center; white-space: pre-line; }
+  #btn-restart { background: #ffe100; color: #1a0a2e; font-size: 1rem; font-weight: 900; padding: 12px 32px; border: none; border-radius: 12px; cursor: pointer; letter-spacing: 1px; }
+  #btn-to-lobby { background: transparent; color: #aaa; font-size: 0.85rem; font-weight: 600; padding: 10px 24px; border: 2px solid #5a3a8e; border-radius: 10px; cursor: pointer; letter-spacing: 0.5px; margin-top: 4px; }
+  #credit { font-size: 0.6rem; color: #4a2a7e; letter-spacing: 1px; flex-shrink: 0; }
+
+  /* ── XP BAR in topbar ── */
+  #lobby-topbar-xp-wrap { width: 100%; margin-top: 4px; }
+  #lobby-topbar-xp-row { display: flex; align-items: center; gap: 6px; }
+  #lobby-topbar-xp-label { font-size: 0.6rem; color: #9a6abe; white-space: nowrap; }
+  #lobby-topbar-xp-bar-bg { flex: 1; background: #1a0a2e; border-radius: 4px; height: 8px; border: 1px solid #3a2a6e; overflow: hidden; }
+  #lobby-topbar-xp-bar { height: 100%; background: linear-gradient(90deg,#7a3aee,#ffe100); border-radius: 4px; transition: width 0.4s; }
+  #lobby-topbar-xp-val { font-size: 0.6rem; color: #ffe100; font-weight: 700; white-space: nowrap; }
+
+  /* ── DAILY GIFT in Ustawienia ── */
+  #daily-gift-card {
+    width: 100%; max-width: 400px; background: linear-gradient(135deg,#1a0a3e,#2a1a5e);
+    border: 2px solid #7a3aee; border-radius: 14px; padding: 16px; display: flex;
+    flex-direction: column; align-items: center; gap: 10px;
+  }
+  #daily-gift-title { font-size: 0.7rem; color: #9a6abe; letter-spacing: 2px; text-transform: uppercase; }
+  #daily-gift-amount { font-size: 2rem; font-weight: 900; color: #ffe100; text-shadow: 0 0 12px #ffe10066; }
+  #daily-gift-streak { font-size: 0.75rem; color: #aaa; text-align: center; }
+  #daily-gift-streak span { color: #ffe100; font-weight: 700; }
+  #daily-gift-next { font-size: 0.65rem; color: #5a3a8e; text-align: center; }
+  #btn-daily-gift {
+    width: min(200px,70vw); padding: 13px; background: linear-gradient(135deg,#7a3aee,#aa3aee);
+    border: none; border-radius: 10px; color: #fff; font-size: 0.95rem; font-weight: 900;
+    cursor: pointer; letter-spacing: 1px; transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent; box-shadow: 0 0 14px #7a3aee55;
+  }
+  #btn-daily-gift:active { transform: scale(0.95); }
+  #btn-daily-gift.claimed { background: #2a2a4e; border: 2px solid #3a2a6e; color: #5a4a8e; pointer-events: none; box-shadow: none; }
+  #daily-streak-dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+  .streak-dot { width: 20px; height: 20px; border-radius: 50%; background: #1a0a2e; border: 2px solid #3a2a5e; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; color: #5a3a8e; transition: all 0.2s; }
+  .streak-dot.done { background: #3a1a8e; border-color: #ffe100; color: #ffe100; }
+  .streak-dot.today { background: #7a3aee; border-color: #fff; color: #fff; animation: dotPulse 1s ease infinite alternate; }
+  @keyframes dotPulse { from{box-shadow:0 0 4px #7a3aee88} to{box-shadow:0 0 10px #7a3aeecc} }
+
+  /* ── BATTLE PASS OVERLAY ── */
+  #bp-overlay {
+    display: none; position: fixed; inset: 0; background: #000000dd;
+    flex-direction: column; align-items: center; z-index: 200; overflow-y: auto; padding: 16px;
+  }
+  #bp-overlay.active { display: flex; }
+  #bp-modal {
+    width: 100%; max-width: 420px; background: #12082a; border: 2px solid #7a3aee;
+    border-radius: 16px; overflow: hidden; flex-shrink: 0; margin-bottom: 20px;
+  }
+  #bp-header {
+    background: linear-gradient(135deg,#2a0a5e,#4a0a8e);
+    padding: 14px 16px; display: flex; align-items: center; gap: 10px;
+  }
+  #bp-header-icon { font-size: 2rem; }
+  #bp-header-info { flex: 1; }
+  #bp-header-title { font-size: 1rem; font-weight: 900; color: #ffe100; letter-spacing: 1px; }
+  #bp-header-season { font-size: 0.65rem; color: #9a6abe; margin-top: 2px; }
+  #bp-header-dates { font-size: 0.6rem; color: #7a5aae; margin-top: 1px; }
+  #bp-close-btn {
+    padding: 8px 12px; background: transparent; border: 2px solid #5a3a8e;
+    border-radius: 8px; color: #aaa; font-size: 0.8rem; font-weight: 700;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; transition: all 0.15s;
+  }
+  #bp-close-btn:active { background: #2a1a4e; }
+  #bp-level-bar-wrap { padding: 10px 16px; background: #1a0a2e; border-bottom: 1px solid #2a1a4e; }
+  #bp-level-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+  #bp-level-label { font-size: 0.7rem; color: #9a6abe; }
+  #bp-level-val { font-size: 0.8rem; font-weight: 900; color: #ffe100; }
+  #bp-xp-bg { flex: 1; background: #0a0418; border-radius: 4px; height: 8px; border: 1px solid #3a2a6e; overflow: hidden; }
+  #bp-xp-fill { height: 100%; background: linear-gradient(90deg,#7a3aee,#ffe100); border-radius: 4px; transition: width 0.4s; }
+  #bp-xp-text { font-size: 0.6rem; color: #7a5aae; }
+  #bp-rewards-list { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .bp-reward-row {
+    background: #1a0a2e; border: 2px solid #2a1a4e; border-radius: 10px;
+    padding: 10px 12px; display: flex; align-items: center; gap: 10px;
+    transition: border-color 0.2s;
+  }
+  .bp-reward-row.unlocked { border-color: #7a3aee; }
+  .bp-reward-row.claimed  { border-color: #3a7a3a; background: #0a1a0a; }
+  .bp-reward-lvl { font-size: 0.65rem; color: #5a3a8e; font-weight: 700; min-width: 32px; }
+  .bp-reward-row.unlocked .bp-reward-lvl { color: #ffe100; }
+  .bp-reward-row.claimed  .bp-reward-lvl { color: #44ff88; }
+  .bp-reward-icon { font-size: 1.8rem; }
+  .bp-reward-name { flex: 1; font-size: 0.8rem; color: #ddd; font-weight: 600; }
+  .bp-reward-row.claimed .bp-reward-name { color: #44ff88; }
+  .bp-claim-btn {
+    padding: 7px 12px; background: linear-gradient(135deg,#7a3aee,#aa3aee);
+    border: none; border-radius: 8px; color: #fff; font-size: 0.75rem; font-weight: 900;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; transition: all 0.15s; white-space: nowrap;
+  }
+  .bp-claim-btn:active { transform: scale(0.93); }
+  .bp-locked-badge { font-size: 0.65rem; color: #3a2a5e; }
+  .bp-claimed-badge { font-size: 0.65rem; color: #44ff88; }
+
+  /* ── BP BUTTON in LOBBY TAB ── */
+  #btn-battlepass {
+    width: min(220px, 75vw); padding: 13px 16px;
+    background: linear-gradient(135deg,#4a0a8e,#7a3aee);
+    border: 2px solid #aa3aee; border-radius: 12px; color: #fff;
+    font-size: 0.9rem; font-weight: 900; cursor: pointer; letter-spacing: 1px;
+    transition: all 0.18s; -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 0 16px #7a3aee44; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  #btn-battlepass:active { transform: scale(0.96); }
+
+  /* ── GAME MODE SELECTOR ── */
+  #game-mode-wrap {
+    width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 6px;
+  }
+  #game-mode-label { font-size: 0.6rem; color: #9a6abe; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
+  #game-mode-btns { display: flex; gap: 8px; }
+  .mode-btn {
+    flex: 1; padding: 10px 8px; border-radius: 10px; font-size: 0.75rem;
+    font-weight: 800; letter-spacing: 0.5px; text-align: center; cursor: pointer;
+    border: 2px solid; transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .mode-btn .mode-icon { font-size: 1.3rem; }
+  .mode-btn.selected {
+    background: #2a1a4e; border-color: #ffe100; color: #ffe100;
+    box-shadow: 0 0 10px #ffe10044;
+  }
+  .mode-btn.unselected {
+    background: #1a0a2e; border-color: #3a2a5e; color: #5a4a8e;
+  }
+  .mode-btn.inactive {
+    background: #150920; border-color: #2a1a3e; color: #3a2a5e;
+    cursor: default; pointer-events: none;
+  }
+  .mode-soon { font-size: 0.5rem; color: #5a3a8e; letter-spacing: 1px; margin-top: 1px; }
+
+  /* ── DAILY QUESTS TAB ── */
+  #tab-zadania { gap: 12px; }
+  #quests-header {
+    width: 100%; max-width: 400px; display: flex; align-items: center; justify-content: space-between;
+  }
+  #quests-title { font-size: 0.7rem; color: #9a6abe; letter-spacing: 2px; text-transform: uppercase; }
+  #quests-reset { font-size: 0.6rem; color: #4a3a6e; }
+  #quests-list { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; }
+  .quest-card {
+    background: #1a0a2e; border: 2px solid #3a2a5e; border-radius: 12px;
+    padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;
+    transition: border-color 0.2s;
+  }
+  .quest-card.completed { border-color: #44aa44; background: #0a1a0a; }
+  .quest-card.claimed   { border-color: #2a3a2a; background: #0a0f0a; opacity: 0.6; }
+  .quest-card-top { display: flex; align-items: center; gap: 10px; }
+  .quest-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .quest-info { flex: 1; }
+  .quest-name { font-size: 0.82rem; font-weight: 700; color: #ddd; }
+  .quest-card.completed .quest-name { color: #44ff88; }
+  .quest-card.claimed   .quest-name { color: #3a5a3a; }
+  .quest-reward { font-size: 0.6rem; color: #9a6abe; margin-top: 2px; }
+  .quest-card.claimed .quest-reward { color: #3a4a3a; }
+  .quest-claim-btn {
+    padding: 7px 13px; background: linear-gradient(135deg,#22aa44,#44dd66);
+    border: none; border-radius: 8px; color: #fff; font-size: 0.75rem; font-weight: 900;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+  }
+  .quest-claim-btn:active { transform: scale(0.93); }
+  .quest-claimed-badge { font-size: 0.65rem; color: #3a6a3a; white-space: nowrap; flex-shrink: 0; }
+  .quest-prog-wrap { background: #0a0418; border-radius: 4px; height: 7px; border: 1px solid #2a1a4e; overflow: hidden; }
+  .quest-prog-bar { height: 100%; border-radius: 4px; transition: width 0.4s; background: linear-gradient(90deg,#7a3aee,#ffe100); }
+  .quest-card.completed .quest-prog-bar { background: linear-gradient(90deg,#22aa44,#44ff88); }
+  .quest-prog-label { font-size: 0.6rem; color: #5a3a8e; text-align: right; margin-top: 2px; }
+  .quest-card.completed .quest-prog-label { color: #44aa44; }
+  #quests-login-msg { font-size: 0.8rem; color: #5a3a8e; text-align: center; margin-top: 20px; }
+
+  /* ── KONTO TAB ── */
+  #tab-konto { gap: 14px; }
+  #konto-header {
+    width: 100%; max-width: 400px; background: linear-gradient(135deg,#2a0a5e,#1a0a3e);
+    border: 2px solid #7a3aee; border-radius: 14px; padding: 16px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  #konto-avatar { font-size: 3rem; }
+  #konto-nick-wrap { flex: 1; }
+  #konto-nick { font-size: 1.1rem; font-weight: 900; color: #ffe100; letter-spacing: 1px; }
+  #konto-level { font-size: 0.7rem; color: #9a6abe; margin-top: 3px; }
+  #konto-stats-grid {
+    width: 100%; max-width: 400px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .konto-stat-card {
+    background: #1a0a2e; border: 2px solid #3a2a5e; border-radius: 12px;
+    padding: 12px 14px; display: flex; flex-direction: column; gap: 4px;
+    align-items: center; text-align: center;
+  }
+  .konto-stat-icon { font-size: 1.6rem; }
+  .konto-stat-val { font-size: 1.2rem; font-weight: 900; color: #ffe100; }
+  .konto-stat-label { font-size: 0.58rem; color: #5a3a8e; letter-spacing: 1px; text-transform: uppercase; }
+  #konto-time-card {
+    width: 100%; max-width: 400px; background: #1a0a2e; border: 2px solid #3a2a5e;
+    border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column;
+    align-items: center; gap: 6px;
+  }
+  #konto-time-label { font-size: 0.6rem; color: #5a3a8e; letter-spacing: 2px; text-transform: uppercase; }
+  #konto-time-val { font-size: 1rem; font-weight: 900; color: #ffe100; letter-spacing: 1px; }
+  #konto-no-save { font-size: 0.85rem; color: #5a3a8e; text-align: center; margin-top: 30px; }
+
+  /* ── TUTORIAL OVERLAY (top bar only, doesn't cover game) ── */
+  #tut-overlay {
+    display: none; position: fixed; top: 0; left: 0; right: 0;
+    flex-direction: column; z-index: 300; pointer-events: none;
+  }
+  #tut-overlay.active { display: flex; }
+
+  #tut-step-bar {
+    width: 100%; background: #1a0a3eee; border-bottom: 2px solid #7a3aee;
+    padding: 8px 12px; display: flex; align-items: center; gap: 10px;
+    pointer-events: auto; box-shadow: 0 2px 12px #00000066;
+  }
+  #tut-step-icon { font-size: 1.5rem; }
+  #tut-step-info { flex: 1; }
+  #tut-step-label { font-size: 0.55rem; color: #7a5aae; letter-spacing: 2px; text-transform: uppercase; }
+  #tut-step-title { font-size: 0.9rem; font-weight: 900; color: #ffe100; margin-top: 1px; }
+  #tut-step-desc  { font-size: 0.65rem; color: #bbb; margin-top: 2px; line-height: 1.3; }
+  #tut-steps-dots { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+  .tut-dot { width: 8px; height: 8px; border-radius: 50%; background: #3a2a5e; transition: all 0.2s; }
+  .tut-dot.done { background: #44aa44; }
+  .tut-dot.active { background: #ffe100; box-shadow: 0 0 6px #ffe100; width: 10px; height: 10px; }
+  /* Push game screen content down when tutorial bar is visible */
+  #screen-game.tut-active { padding-top: 80px; }
+
+  /* Tutorial info screen (after game) */
+  #tut-info-overlay {
+    display: none; position: fixed; inset: 0; background: #000000ee;
+    flex-direction: column; align-items: center; justify-content: center;
+    z-index: 400; padding: 20px;
+  }
+  #tut-info-overlay.active { display: flex; }
+  #tut-info-modal {
+    width: 100%; max-width: 400px; background: #12082a; border: 2px solid #7a3aee;
+    border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;
+  }
+  #tut-info-title { font-size: 1.2rem; font-weight: 900; color: #ffe100; text-align: center; letter-spacing: 2px; }
+  #tut-info-subtitle { font-size: 0.75rem; color: #9a6abe; text-align: center; }
+  .tut-info-card {
+    background: #1a0a2e; border: 2px solid #3a2a5e; border-radius: 12px;
+    padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px;
+  }
+  .tut-info-icon { font-size: 1.6rem; flex-shrink: 0; margin-top: 2px; }
+  .tut-info-text { flex: 1; }
+  .tut-info-text strong { font-size: 0.85rem; color: #ffe100; display: block; margin-bottom: 3px; }
+  .tut-info-text span { font-size: 0.72rem; color: #bbb; line-height: 1.5; }
+  #tut-info-reward {
+    background: linear-gradient(135deg,#1a0a3e,#2a0a5e); border: 2px solid #ffe100;
+    border-radius: 12px; padding: 14px; text-align: center; display: flex;
+    flex-direction: column; gap: 6px;
+  }
+  #tut-info-reward-title { font-size: 0.65rem; color: #9a6abe; letter-spacing: 2px; text-transform: uppercase; }
+  #tut-info-reward-val   { font-size: 1.8rem; font-weight: 900; color: #ffe100; text-shadow: 0 0 12px #ffe10066; }
+  #tut-info-reward-xp    { font-size: 0.75rem; color: #aaa; }
+  #btn-tut-continue {
+    width: 100%; padding: 14px; background: linear-gradient(135deg,#ffe100,#ffaa00);
+    border: none; border-radius: 12px; color: #1a0a2e; font-size: 1rem; font-weight: 900;
+    cursor: pointer; letter-spacing: 1px; -webkit-tap-highlight-color: transparent; transition: all 0.15s;
+  }
+  #btn-tut-continue:active { transform: scale(0.96); }
+</style>
+</head>
+<body>
+
+<!-- ══ MENU SCREEN ══ -->
+<div id="screen-menu" class="screen active">
+  <div id="menu-title-wrap">
+    <div id="menu-island-emoji">🏝️</div>
+    <div id="menu-game-title">KIWI ROYALE</div>
+    <div id="menu-subtitle">Battle Royale</div>
+  </div>
+  <button class="menu-btn" id="btn-new-game" onclick="onNewGame()">🎮 NOWA GRA</button>
+  <button class="menu-btn" id="btn-login-local" onclick="onLoginLocal()">💾 ZALOGUJ LOKALNIE</button>
+  <div id="menu-version"> V5.6 &nbsp;·&nbsp; <span>@kiwi777oficial_PL</span></div>
+</div>
+
+<!-- ══ SAVES FULL SCREEN ══ -->
+<div id="screen-saves-full" class="screen">
+  <div id="saves-full-title">⚠️ Brak miejsca!</div>
+  <div id="saves-full-msg">Masz już 2 zapisy lokalne.<br>Usuń jeden z istniejących aby<br>utworzyć nowy zapis.</div>
+  <button class="btn-saves-action" id="btn-saves-back" onclick="showScreen('screen-menu')">← Powrót do menu</button>
+</div>
+
+<!-- ══ NICK SCREEN ══ -->
+<div id="screen-nick" class="screen">
+  <div id="nick-title">🎮 NOWA GRA</div>
+  <div id="nick-sub">Wpisz swój nick (max 14 znaków)</div>
+  <div id="nick-input-wrap">
+    <input type="text" id="nick-input" maxlength="14" placeholder="Twój nick…" autocomplete="off" spellcheck="false" oninput="onNickInput()" />
+  </div>
+  <div id="nick-char-count">0 / 14</div>
+  <button id="btn-nick-confirm" onclick="onNickConfirm()">GRAJ →</button>
+</div>
+
+<!-- ══ LOCAL LOGIN SCREEN ══ -->
+<div id="screen-local-login" class="screen">
+  <div id="local-login-title">💾 Zaloguj lokalnie</div>
+  <div id="local-login-list"></div>
+  <div id="local-login-empty" style="display:none">Brak zapisanych graczy.</div>
+  <button class="btn-saves-action" id="btn-local-back" onclick="showScreen('screen-menu')" style="margin-top:8px">← Powrót</button>
+</div>
+
+<!-- ══ LOBBY SCREEN ══ -->
+<div id="screen-lobby" class="screen">
+  <!-- Top bar -->
+  <div id="lobby-topbar">
+    <div id="lobby-topbar-avatar">😃</div>
+    <div id="lobby-topbar-info" style="flex:1;">
+      <div id="lobby-topbar-nick">—</div>
+      <div id="lobby-topbar-stats">
+        Wygrane: <span id="lobby-wins">0</span>&nbsp;&nbsp;
+        X-Money: <span id="lobby-money">0</span>
+      </div>
+      <div id="lobby-topbar-xp-wrap">
+        <div id="lobby-topbar-xp-row">
+          <div id="lobby-topbar-xp-label">LVL <span id="lobby-lvl-val">1</span></div>
+          <div id="lobby-topbar-xp-bar-bg"><div id="lobby-topbar-xp-bar" style="width:0%"></div></div>
+          <div id="lobby-topbar-xp-val"><span id="lobby-xp-cur">0</span>/100 XP</div>
+        </div>
+      </div>
+      <div id="daily-earnings-wrap">
+        <div id="daily-earnings-row">
+          <div id="daily-earnings-label">💰 Dzienny limit: <span id="daily-earned-val">0</span>/80</div>
+          <div id="daily-earnings-bar-bg"><div id="daily-earnings-bar" style="width:0%"></div></div>
+          <div id="daily-earnings-reset">Reset: 06:00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab content area -->
+  <div id="lobby-content">
+
+    <!-- LOBBY TAB -->
+    <div id="tab-lobby" class="tab-content active">
+      <div id="lobby-season-bar">
+        <div id="lobby-season-icon">⚔️</div>
+        <div id="lobby-season-info">
+          <div id="lobby-season-label">Sezon 1</div>
+          <div id="lobby-season-name">Średniowieczna bitwa</div>
+        </div>
+      </div>
+      <div id="lobby-skin-preview">
+        <div id="lobby-skin-label">WYPOSAŻONY SKIN</div>
+        <div id="lobby-skin-emoji-wrap">😃</div>
+      </div>
+      <button id="btn-battlepass" onclick="openBattlePass()">🎫 BATTLE PASS</button>
+      <div id="game-mode-wrap">
+        <div id="game-mode-label">Tryb gry</div>
+        <div id="game-mode-btns">
+          <div class="mode-btn selected" id="mode-classic" onclick="selectGameMode('classic')">
+            <span class="mode-icon">⚔️</span>
+            Classic Battle
+          </div>
+          <div class="mode-btn unselected" id="mode-fast" onclick="selectGameMode('fast')">
+            <span class="mode-icon">⚡</span>
+            Fast Battle
+          </div>
+          <div class="mode-btn unselected" id="mode-chaos" onclick="selectGameMode('chaos')">
+            <span class="mode-icon">🌪️</span>
+            Chaos Battle
+          </div>
+        </div>
+      </div>
+      <button id="btn-find-game" onclick="onFindGame()">🔍 SZUKAJ GRY</button>
+    </div>
+
+    <!-- SKLEP TAB -->
+    <div id="tab-sklep" class="tab-content">
+      <div id="sklep-wrap" style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px;">
+        <div style="font-size:0.7rem;color:#9a6abe;letter-spacing:2px;text-transform:uppercase;">Sklep</div>
+        <div id="sklep-item-battlepass" class="sklep-card" style="border-color:#7a3aee;background:linear-gradient(135deg,#1a0a2e,#2a0a4e);">
+          <div class="sklep-card-icon">🎫</div>
+          <div class="sklep-card-info">
+            <div class="sklep-card-name" style="color:#aa6aff;">Karnet Sezonu 1</div>
+            <div class="sklep-card-desc">Odblokuj nagrody Battle Passa! Sezon 1: 10.06.26 – 24.06.26</div>
+          </div>
+          <button class="sklep-buy-btn" id="btn-buy-battlepass" onclick="buyBattlePass()" style="background:linear-gradient(135deg,#7a3aee,#aa3aee);color:#fff;">💰 400</button>
+        </div>
+        <div id="sklep-item-angel" class="sklep-card">
+          <div class="sklep-card-icon">😇</div>
+          <div class="sklep-card-info">
+            <div class="sklep-card-name">Skin: Aniołek</div>
+            <div class="sklep-card-desc">Wyglądasz niewinnie… ale nie jesteś.</div>
+          </div>
+          <button class="sklep-buy-btn" id="btn-buy-angel" onclick="buyAngelSkin()">💰 80</button>
+        </div>
+        <div id="sklep-item-happy" class="sklep-card">
+          <div class="sklep-card-icon">😁</div>
+          <div class="sklep-card-info">
+            <div class="sklep-card-name">Skin: Szczęśliwy</div>
+            <div class="sklep-card-desc">Zawsze uśmiechnięty, nawet w walce.</div>
+          </div>
+          <button class="sklep-buy-btn" id="btn-buy-happy" onclick="buyHappySkin()">💰 45</button>
+        </div>
+        <div id="sklep-item-cool" class="sklep-card">
+          <div class="sklep-card-icon">😎</div>
+          <div class="sklep-card-info">
+            <div class="sklep-card-name">Skin: Cool</div>
+            <div class="sklep-card-desc">Zachowaj spokój i wygrywaj.</div>
+          </div>
+          <button class="sklep-buy-btn" id="btn-buy-cool" onclick="buyCoolSkin()">💰 140</button>
+        </div>
+        <div style="background:#1a0a2e;border:1px solid #3a2a5e;border-radius:10px;padding:12px 14px;">
+          <div style="font-size:0.6rem;color:#9a6abe;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Nagrody za mecz</div>
+          <div style="display:flex;flex-direction:column;gap:5px;font-size:0.8rem;color:#bbb;">
+            <div>🏆 1. miejsce (Wygrana) <span style="color:#ffe100;font-weight:700;float:right">+15 💰</span></div>
+            <div>🥈 2. miejsce <span style="color:#aaa;font-weight:700;float:right">+12 💰</span></div>
+            <div>🥉 3. miejsce <span style="color:#888;font-weight:700;float:right">+8 💰</span></div>
+            <div>4.–8. miejsce <span style="color:#666;font-weight:700;float:right">+3 💰</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SZAFKA TAB -->
+    <div id="tab-szafka" class="tab-content">
+      <div id="tab-szafka-wrap">
+        <div id="szafka-title">Twoje skiny</div>
+        <div id="szafka-grid"></div>
+      </div>
+    </div>
+
+    <!-- ZADANIA TAB -->
+    <div id="tab-zadania" class="tab-content">
+      <div id="quests-header">
+        <div id="quests-title">Dzienne zadania</div>
+        <div id="quests-reset">Reset o 06:00</div>
+      </div>
+      <div id="daily-gift-card">
+        <div id="daily-gift-title">🎁 Daily Gift</div>
+        <div id="daily-gift-amount">50 💰</div>
+        <div id="daily-gift-streak">Passa: <span id="dg-streak">0</span> dni z rzędu</div>
+        <div id="daily-streak-dots"></div>
+        <button id="btn-daily-gift" onclick="claimDailyGift()">🎁 ODBIERZ</button>
+        <div id="daily-gift-next"></div>
+      </div>
+      <div id="quests-list"></div>
+      <div id="quests-login-msg" style="display:none">Zaloguj się aby zobaczyć zadania.</div>
+    </div>
+
+    <!-- KONTO TAB -->
+    <div id="tab-konto" class="tab-content">
+      <div id="konto-header">
+        <div id="konto-avatar">😃</div>
+        <div id="konto-nick-wrap">
+          <div id="konto-nick">—</div>
+          <div id="konto-level">Poziom 1</div>
+        </div>
+      </div>
+      <div id="konto-stats-grid">
+        <div class="konto-stat-card">
+          <div class="konto-stat-icon">🏆</div>
+          <div class="konto-stat-val" id="konto-wins">0</div>
+          <div class="konto-stat-label">Zwycięstwa</div>
+        </div>
+        <div class="konto-stat-card">
+          <div class="konto-stat-icon">💀</div>
+          <div class="konto-stat-val" id="konto-kills">0</div>
+          <div class="konto-stat-label">Łączne zabicia</div>
+        </div>
+        <div class="konto-stat-card">
+          <div class="konto-stat-icon">⚡</div>
+          <div class="konto-stat-val" id="konto-forges">0</div>
+          <div class="konto-stat-label">Użyte złote kwadraty</div>
+        </div>
+        <div class="konto-stat-card">
+          <div class="konto-stat-icon">💰</div>
+          <div class="konto-stat-val" id="konto-money">0</div>
+          <div class="konto-stat-label">Łączne X-Money</div>
+        </div>
+        <div class="konto-stat-card">
+          <div class="konto-stat-icon">😈</div>
+          <div class="konto-stat-val" id="konto-boss-kills">0</div>
+          <div class="konto-stat-label">Pokonani Bossowie</div>
+        </div>
+        <div class="konto-stat-card">
+          <div class="konto-stat-icon">🎮</div>
+          <div class="konto-stat-val" id="konto-games">0</div>
+          <div class="konto-stat-label">Rozegrane gry</div>
+        </div>
+      </div>
+      <div id="konto-time-card">
+        <div class="konto-stat-icon">⏱️</div>
+        <div id="konto-time-label">Łączny czas gry</div>
+        <div id="konto-time-val" id="konto-time">0s</div>
+      </div>
+      <div id="konto-no-save" style="display:none">Zaloguj się aby zobaczyć konto.</div>
+    </div>
+
+  </div>
+
+  <!-- Bottom tabs -->
+  <div id="lobby-tabs">
+    <button class="tab-btn active" id="tab-btn-lobby" onclick="switchTab('lobby')">
+      <span class="tab-icon">🏠</span>LOBBY
+    </button>
+    <button class="tab-btn" id="tab-btn-zadania" onclick="switchTab('zadania')">
+      <span class="tab-icon">📋</span>ZADANIA
+    </button>
+    <button class="tab-btn" id="tab-btn-sklep" onclick="switchTab('sklep')">
+      <span class="tab-icon">🛒</span>SKLEP
+    </button>
+    <button class="tab-btn" id="tab-btn-szafka" onclick="switchTab('szafka')">
+      <span class="tab-icon">🎒</span>SZAFKA
+    </button>
+    <button class="tab-btn" id="tab-btn-konto" onclick="switchTab('konto')">
+      <span class="tab-icon">👤</span>KONTO
+    </button>
+  </div>
+</div>
+
+<!-- ══ SEARCHING OVERLAY ══ -->
+<div id="searching-overlay">
+  <div id="searching-title">SZUKANIE GRY</div>
+  <div id="searching-radar"><div id="searching-icon">🏹</div></div>
+  <div id="searching-status">Łączenie z serwerem…</div>
+  <button id="btn-cancel-search" onclick="onCancelSearch()">✖ Anuluj</button>
+</div>
+
+<!-- ══ GAME SCREEN ══ -->
+<div id="screen-game" class="screen">
+  <div id="title">🏝️ KIWI ROYALE V5.6</div>
+  <div id="hud">
+    <div id="hud-label">😃 HP</div>
+    <div id="hp-bar-wrap"><div id="hp-bar" style="width:100%"></div></div>
+    <div id="hp-text">100 / 100</div>
+  </div>
+  <div id="heal-label" style="display:none">💊 Leczenie… pozostało tur: <span id="heal-turns-left">2</span></div>
+  <div id="heal-bar-wrap"><div id="heal-bar" style="width:0%"></div></div>
+  <div id="info-bar">
+    <div>Tura: <span id="turn-count">1</span></div>
+    <div>Pozostali: <span id="bots-alive">4</span></div>
+    <div>Burza za: <span id="storm-in">3</span> tur</div>
+  </div>
+  <div id="map-outer">
+    <div id="map-size-shim"></div>
+    <div id="map-grid"></div>
+    <canvas id="minimap" width="76" height="76"></canvas>
+  </div>
+  <div id="log">Gra się rozpoczyna! Twój ruch. 😃</div>
+  <div id="eq-log" style="width:100%;max-width:400px;background:#0a1a2e;border:1px solid #2a3a6e;border-radius:8px;padding:4px 10px;font-size:0.65rem;color:#9a9abf;min-height:22px;line-height:1.4;flex-shrink:0;"></div>
+  <div id="bottom-area">
+    <div id="controls">
+      <button class="btn-dir up-left diag"   id="btn-up-left"   onclick="move(-1,-1)">↖️</button>
+      <button class="btn-dir up"        id="btn-up"        onclick="move(0,-1)">⬆️</button>
+      <button class="btn-dir up-right diag"  id="btn-up-right"  onclick="move(1,-1)">↗️</button>
+      <button class="btn-dir left"      id="btn-left"      onclick="move(-1,0)">⬅️</button>
+      <div    id="btn-mid"></div>
+      <button class="btn-dir right"     id="btn-right"     onclick="move(1,0)">➡️</button>
+      <button class="btn-dir down-left diag" id="btn-down-left" onclick="move(-1,1)">↙️</button>
+      <button class="btn-dir down"      id="btn-down"      onclick="move(0,1)">⬇️</button>
+      <button class="btn-dir down-right diag" id="btn-down-right" onclick="move(1,1)">↘️</button>
+    </div>
+    <div id="eq-wrap">
+      <div id="eq-label">EQ</div>
+      <div id="eq-slots">
+        <div class="eq-slot active" id="eq-0" onclick="selectEq(0)"><span class="eq-slot-num">1</span></div>
+        <div class="eq-slot"        id="eq-1" onclick="selectEq(1)"><span class="eq-slot-num">2</span></div>
+        <div class="eq-slot"        id="eq-2" onclick="selectEq(2)"><span class="eq-slot-num">3</span></div>
+      </div>
+      <div id="item-slot-label">ITEM</div>
+      <div id="item-slot-wrap">
+        <div class="eq-slot item-slot-box" id="item-slot" title="Slot na Item (Luneta / Medalion)"></div>
+      </div>
+    </div>
+    <div id="action-btns">
+      <button class="btn-action off" id="btn-attack"  onclick="onAttackBtn()">⚔️ ATAK</button>
+      <button class="btn-action off" id="btn-pickup"  onclick="onPickupBtn()">📦 PODNIEŚ</button>
+    </div>
+  </div>
+  <div id="credit">@kiwi777oficial_PL</div>
+  <div id="overlay" style="display:none">
+    <h2 id="overlay-title"></h2>
+    <p  id="overlay-msg"></p>
+    <button id="btn-restart" onclick="initGame()">ZAGRAJ PONOWNIE</button>
+    <button id="btn-to-lobby" onclick="goToLobby()">← Wróć do lobby</button>
+  </div>
+</div>
+
+<!-- ══ BATTLE PASS OVERLAY ══ -->
+<div id="bp-overlay">
+  <div id="bp-modal">
+    <div id="bp-header">
+      <div id="bp-header-icon">🎫</div>
+      <div id="bp-header-info">
+        <div id="bp-header-title">BATTLE PASS</div>
+        <div id="bp-header-season">Sezon 1 — Średniowieczna bitwa</div>
+        <div id="bp-header-dates">10.06.2026 – 24.06.2026</div>
+      </div>
+      <button id="bp-close-btn" onclick="closeBattlePass()">✖</button>
+    </div>
+    <div id="bp-level-bar-wrap">
+      <div id="bp-level-row">
+        <div id="bp-level-label">Poziom</div>
+        <div id="bp-level-val">1</div>
+        <div id="bp-xp-bg"><div id="bp-xp-fill" style="width:0%"></div></div>
+        <div id="bp-xp-text"><span id="bp-xp-cur">0</span>/100 XP</div>
+      </div>
+    </div>
+    <div id="bp-rewards-list"></div>
+  </div>
+</div>
+
+<!-- ══ TUTORIAL STEP OVERLAY (shown on top of game screen) ══ -->
+<div id="tut-overlay">
+  <div id="tut-step-bar">
+    <div id="tut-step-icon">📖</div>
+    <div id="tut-step-info">
+      <div id="tut-step-label">TUTORIAL · KROK <span id="tut-step-num">1</span>/6</div>
+      <div id="tut-step-title">Otwórz skrzynkę</div>
+      <div id="tut-step-desc">Podejdź do skrzynki 📦 obok i naciśnij PODNIEŚ</div>
+    </div>
+    <div id="tut-steps-dots"></div>
+  </div>
+</div>
+
+<!-- ══ TUTORIAL INFO SCREEN (after winning) ══ -->
+<div id="tut-info-overlay">
+  <div id="tut-info-modal">
+    <div id="tut-info-title">🎉 BRAWO!</div>
+    <div id="tut-info-subtitle">Ukończyłeś tutorial. Oto kilka ważnych wskazówek:</div>
+    <div class="tut-info-card">
+      <div class="tut-info-icon">💊</div>
+      <div class="tut-info-text">
+        <strong>Leczenie w walce</strong>
+        <span>Podczas gry możesz używać Apteczek (+70 HP) oraz Miksturek (+50 🛡️), by przetrwać walkę.</span>
+      </div>
+    </div>
+    <div class="tut-info-card">
+      <div class="tut-info-icon">😈</div>
+      <div class="tut-info-text">
+        <strong>Boss na mapie</strong>
+        <span>Podczas gry pojawia się Boss z ulepszoną bronią. Pokonaj go, żeby zdobyć jego sprzęt!</span>
+      </div>
+    </div>
+    <div class="tut-info-card">
+      <div class="tut-info-icon">📦</div>
+      <div class="tut-info-text">
+        <strong>Stackowanie przedmiotów</strong>
+        <span>Apteczki łączą się do 3 sztuk w jednym slocie, a Mikstury do 2 sztuk – oszczędzasz miejsce!</span>
+      </div>
+    </div>
+    <div id="tut-info-reward">
+      <div id="tut-info-reward-title">🎁 NAGRODA ZA TUTORIAL</div>
+      <div id="tut-info-reward-val">+30 💰 X-Money</div>
+      <div id="tut-info-reward-xp">+60 XP</div>
+    </div>
+    <button id="btn-tut-continue" onclick="onTutorialFinish()">🚀 PRZEJDŹ DO LOBBY</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  AMBIENT MUSIC SYSTEM
+// ══════════════════════════════════════════════
+let _ambientNodes = null;
+let _ambientScreen = null;
+
+function stopAmbient() {
+  if (_ambientNodes) {
+    try {
+      _ambientNodes.forEach(n => { try { n.stop(); } catch(e){} });
+    } catch(e) {}
+    _ambientNodes = null;
+    _ambientScreen = null;
+  }
+}
+
+function startAmbient(screen) {
+  if (_ambientScreen === screen) return;
+  stopAmbient();
+  _ambientScreen = screen;
+  try {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+    _ambientNodes = [];
+
+    if (screen === 'menu') {
+      // Spokojne, tajemnicze menu – delikatne tony + lekki pad
+      const masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(0, ctx.currentTime);
+      masterGain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 2);
+      masterGain.connect(ctx.destination);
+
+      // Pad – powolne oscylacje harmoniczne
+      const baseFreqs = [110, 165, 220, 277, 330];
+      baseFreqs.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.08 + i * 0.03;
+        lfoGain.gain.value = freq * 0.015;
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.value = 0.3 / (i + 1);
+        osc.connect(gain);
+        gain.connect(masterGain);
+
+        osc.start(ctx.currentTime);
+        lfo.start(ctx.currentTime);
+        _ambientNodes.push(osc, lfo);
+      });
+
+      // Delikatny shimmer (wysokie częstotliwości)
+      const shimmerOsc = ctx.createOscillator();
+      const shimmerGain = ctx.createGain();
+      shimmerOsc.type = 'sine';
+      shimmerOsc.frequency.value = 880;
+      shimmerGain.gain.value = 0.04;
+      shimmerOsc.connect(shimmerGain);
+      shimmerGain.connect(masterGain);
+      shimmerOsc.start(ctx.currentTime);
+      _ambientNodes.push(shimmerOsc);
+      _ambientNodes.push(masterGain);
+
+    } else if (screen === 'lobby') {
+      // Spokojne lobby – czysty ambient bez buczenia
+      const masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(0, ctx.currentTime);
+      masterGain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 3);
+      masterGain.connect(ctx.destination);
+
+      // Filtr lowpass – ścina wysokie harmoniki
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 900;
+      filter.Q.value = 0.7;
+      filter.connect(masterGain);
+
+      // Pady – tylko sine, bez triangle (triangle generuje buczące harmoniki)
+      const chordFreqs = [261.6, 329.6, 392.0, 523.3];
+      chordFreqs.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.04 + i * 0.025;
+        lfoGain.gain.value = freq * 0.008;
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.value = 0.18 / (i + 1);
+        osc.connect(gain);
+        gain.connect(filter);
+        osc.start(ctx.currentTime);
+        lfo.start(ctx.currentTime);
+        _ambientNodes.push(osc, lfo);
+      });
+
+      // Bas bardzo cichy – osobny lowpass żeby nie buzył
+      const bassFilter = ctx.createBiquadFilter();
+      bassFilter.type = 'lowpass';
+      bassFilter.frequency.value = 120;
+      bassFilter.Q.value = 0.5;
+      bassFilter.connect(masterGain);
+
+      const bassOsc = ctx.createOscillator();
+      const bassGain = ctx.createGain();
+      bassOsc.type = 'sine';
+      bassOsc.frequency.value = 65.4;
+      bassGain.gain.value = 0.06;
+      bassOsc.connect(bassGain);
+      bassGain.connect(bassFilter);
+      bassOsc.start(ctx.currentTime);
+      _ambientNodes.push(bassOsc, filter, bassFilter, masterGain);
+    }
+  } catch(e) { /* audio unavailable */ }
+}
+
+// ══════════════════════════════════════════════
+//  VIBRATION
+// ══════════════════════════════════════════════
+function vibrateHit(type) {
+  if (!navigator.vibrate) return;
+  if (type === 'enemy') navigator.vibrate([80, 30, 80]); // podwójne uderzenie od wroga
+  else if (type === 'storm') navigator.vibrate(200);     // długie wibrowanie od burzy
+}
+
+// ══════════════════════════════════════════════
+//  SOUND SYSTEM (Web Audio API)
+// ══════════════════════════════════════════════
+let _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return _audioCtx;
+}
+
+function playSound(type) {
+  try {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+
+    if (type === 'sword') {
+      // Krótki metaliczny brzęk miecza
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(440, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.4, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.22);
+
+      // dodatkowy metaliczny szum
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.connect(gain2); gain2.connect(ctx.destination);
+      osc2.type = 'square';
+      osc2.frequency.setValueAtTime(900, ctx.currentTime);
+      osc2.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.1);
+      gain2.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+      osc2.start(ctx.currentTime); osc2.stop(ctx.currentTime + 0.12);
+
+    } else if (type === 'bow') {
+      // Pstryk + świst łuku
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.35, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.06);
+
+      // świst strzały
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.connect(gain2); gain2.connect(ctx.destination);
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(600, ctx.currentTime + 0.06);
+      osc2.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.35);
+      gain2.gain.setValueAtTime(0.0, ctx.currentTime);
+      gain2.gain.setValueAtTime(0.2, ctx.currentTime + 0.06);
+      gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc2.start(ctx.currentTime + 0.06); osc2.stop(ctx.currentTime + 0.35);
+
+    } else if (type === 'heal') {
+      // Dźwięk leczenia – ładowanie mocy: narastający sweep + puls energii
+      const masterGain = ctx.createGain();
+      masterGain.connect(ctx.destination);
+      masterGain.gain.setValueAtTime(0, ctx.currentTime);
+      masterGain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.05);
+      masterGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.0);
+
+      // Sweep narastający (ładowanie energii)
+      const sweep = ctx.createOscillator();
+      const sweepGain = ctx.createGain();
+      sweep.type = 'sawtooth';
+      sweep.frequency.setValueAtTime(180, ctx.currentTime);
+      sweep.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.6);
+      sweepGain.gain.value = 0.35;
+      sweep.connect(sweepGain);
+      sweepGain.connect(masterGain);
+      sweep.start(ctx.currentTime); sweep.stop(ctx.currentTime + 0.65);
+
+      // Filtr lowpass – miękkość
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(400, ctx.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(2000, ctx.currentTime + 0.6);
+      filter.Q.value = 3;
+      sweepGain.disconnect(); sweep.connect(filter); filter.connect(masterGain);
+
+      // Puls energii – trzy tony wznoszące (jak ładowanie)
+      const pulseFreqs = [440, 660, 880];
+      pulseFreqs.forEach((f, i) => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = f;
+        g.gain.setValueAtTime(0, ctx.currentTime + 0.3 + i * 0.15);
+        g.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.32 + i * 0.15);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55 + i * 0.15);
+        osc.connect(g); g.connect(masterGain);
+        osc.start(ctx.currentTime + 0.3 + i * 0.15);
+        osc.stop(ctx.currentTime + 0.6 + i * 0.15);
+      });
+
+    } else if (type === 'buy') {
+      // Ding kupowania
+      const freqs = [523, 659, 784];
+      freqs.forEach((f, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, ctx.currentTime + i * 0.1);
+        gain.gain.setValueAtTime(0.0, ctx.currentTime + i * 0.1);
+        gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + i * 0.1 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.25);
+        osc.start(ctx.currentTime + i * 0.1);
+        osc.stop(ctx.currentTime + i * 0.1 + 0.3);
+      });
+
+    } else if (type === 'reward') {
+      // Fanfara nagrody (Battle Pass / Daily Gift)
+      const melody = [523, 659, 784, 1047];
+      melody.forEach((f, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(f, ctx.currentTime + i * 0.12);
+        gain.gain.setValueAtTime(0.0, ctx.currentTime + i * 0.12);
+        gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + i * 0.12 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.3);
+        osc.start(ctx.currentTime + i * 0.12);
+        osc.stop(ctx.currentTime + i * 0.12 + 0.35);
+      });
+    } else if (type === 'goldforge') {
+      // Unikalny dźwięk złotego kwadratu – majestatyczny złoty dzwon + iskry
+      const masterGain = ctx.createGain();
+      masterGain.connect(ctx.destination);
+
+      // Złoty dzwon – głęboki udar + harmoniki
+      const bell = ctx.createOscillator();
+      const bellGain = ctx.createGain();
+      bell.type = 'sine';
+      bell.frequency.setValueAtTime(220, ctx.currentTime);
+      bell.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + 0.3);
+      bellGain.gain.setValueAtTime(0.5, ctx.currentTime);
+      bellGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+      bell.connect(bellGain); bellGain.connect(masterGain);
+      bell.start(ctx.currentTime); bell.stop(ctx.currentTime + 1.2);
+
+      // Harmonika 2x
+      const bell2 = ctx.createOscillator();
+      const bell2Gain = ctx.createGain();
+      bell2.type = 'sine';
+      bell2.frequency.setValueAtTime(440, ctx.currentTime);
+      bell2.frequency.exponentialRampToValueAtTime(350, ctx.currentTime + 0.2);
+      bell2Gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      bell2Gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.9);
+      bell2.connect(bell2Gain); bell2Gain.connect(masterGain);
+      bell2.start(ctx.currentTime); bell2.stop(ctx.currentTime + 0.9);
+
+      // Iskry energii – szybkie piki w górę
+      const sparkFreqs = [880, 1100, 1320, 1760];
+      sparkFreqs.forEach((f, i) => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(f, ctx.currentTime + i * 0.08);
+        osc.frequency.exponentialRampToValueAtTime(f * 1.5, ctx.currentTime + i * 0.08 + 0.05);
+        g.gain.setValueAtTime(0, ctx.currentTime + i * 0.08);
+        g.gain.linearRampToValueAtTime(0.12, ctx.currentTime + i * 0.08 + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.1);
+        osc.connect(g); g.connect(masterGain);
+        osc.start(ctx.currentTime + i * 0.08);
+        osc.stop(ctx.currentTime + i * 0.08 + 0.12);
+      });
+
+      masterGain.gain.setValueAtTime(1, ctx.currentTime);
+    }
+  } catch(e) { /* Web Audio nieobsługiwane */ }
+}
+
+// ══════════════════════════════════════════════
+//  GAME MODE SELECTOR
+// ══════════════════════════════════════════════
+let selectedGameMode = 'classic';
+
+function selectGameMode(mode) {
+  if (mode !== 'classic' && mode !== 'fast' && mode !== 'chaos') return;
+  selectedGameMode = mode;
+  document.getElementById('mode-classic').className = 'mode-btn ' + (mode === 'classic' ? 'selected' : 'unselected');
+  document.getElementById('mode-fast').className    = 'mode-btn ' + (mode === 'fast'    ? 'selected' : 'unselected');
+  document.getElementById('mode-chaos').className   = 'mode-btn ' + (mode === 'chaos'   ? 'selected' : 'unselected');
+}
+
+
+const MAX_SAVES = 2;
+const SAVES_KEY = 'kiwi_saves_v1';
+
+function getSaves() {
+  try { return JSON.parse(localStorage.getItem(SAVES_KEY)) || []; }
+  catch { return []; }
+}
+function putSaves(arr) {
+  localStorage.setItem(SAVES_KEY, JSON.stringify(arr));
+}
+function createSave(nick) {
+  return {
+    nick, wins: 0, money: 0, skins: ['default'], equippedSkin: 'default',
+    createdAt: Date.now(),
+    xp: 0, level: 1,
+    hasBattlePass: false, bpClaimed: [],
+    dailyStreak: 0, dailyLastClaim: null,
+    totalKills: 0, totalForges: 0, totalMoney: 0, totalPlayTime: 0, totalBossKills: 0, totalGames: 0
+  };
+}
+function savesHaveSpace() { return getSaves().length < MAX_SAVES; }
+
+let currentSave = null; // active session
+
+function loadSave(save) {
+  if (!save.skins) save.skins = ['default'];
+  if (!save.equippedSkin) save.equippedSkin = 'default';
+  if (!save.money) save.money = 0;
+  if (!save.xp) save.xp = 0;
+  if (!save.level) save.level = 1;
+  if (!save.hasBattlePass) save.hasBattlePass = false;
+  if (!save.bpClaimed) save.bpClaimed = [];
+  if (save.dailyStreak === undefined) save.dailyStreak = 0;
+  if (save.dailyLastClaim === undefined) save.dailyLastClaim = null;
+  if (!save.totalKills) save.totalKills = 0;
+  if (!save.totalForges) save.totalForges = 0;
+  if (!save.totalBossKills) save.totalBossKills = 0;
+  if (!save.totalGames) save.totalGames = 0;
+  if (!save.totalMoney) save.totalMoney = 0;
+  if (!save.totalPlayTime) save.totalPlayTime = 0;
+  currentSave = save;
+  startSessionTimer();
+  updateLobbyTopbar();
+}
+
+function updateLobbyTopbar() {
+  if (!currentSave) return;
+  const em = skinEmoji();
+  document.getElementById('lobby-topbar-avatar').textContent = em;
+  document.getElementById('lobby-topbar-nick').textContent = currentSave.nick;
+  document.getElementById('lobby-wins').textContent = currentSave.wins;
+  document.getElementById('lobby-money').textContent = currentSave.money || 0;
+  document.getElementById('lobby-skin-emoji-wrap').textContent = em;
+  // XP/Level bar
+  const xp = currentSave.xp || 0;
+  const lvl = currentSave.level || 1;
+  const xpInLevel = xp % 100;
+  document.getElementById('lobby-lvl-val').textContent = lvl;
+  document.getElementById('lobby-xp-cur').textContent = xpInLevel;
+  document.getElementById('lobby-topbar-xp-bar').style.width = xpInLevel + '%';
+  // HUD emoji in game uses equipped skin
+  const hudLbl = document.getElementById('hud-label');
+  if (hudLbl) hudLbl.textContent = em + ' HP';
+  renderSzafka();
+  renderShop();
+  renderDailyGift();
+  renderDailyEarningsBar();
+}
+
+function persistCurrentSave() {
+  if (!currentSave) return;
+  const saves = getSaves();
+  const idx = saves.findIndex(s => s.nick === currentSave.nick && s.createdAt === currentSave.createdAt);
+  if (idx >= 0) saves[idx] = currentSave;
+  else saves.push(currentSave);
+  putSaves(saves);
+}
+
+// ══════════════════════════════════════════════
+//  SKINS / SZAFKA
+// ══════════════════════════════════════════════
+const ALL_SKINS = [
+  { id: 'default',  emoji: '😃', name: 'Domyślny',   price: 0 },
+  { id: 'angel',    emoji: '😇', name: 'Aniołek',    price: 80 },
+  { id: 'happy',    emoji: '😁', name: 'Szczęśliwy', price: 45 },
+  { id: 'cool',     emoji: '😎', name: 'Cool',       price: 140 },
+  { id: 'bp_5',     emoji: '🙃', name: 'BP Lvl 5',   price: 0, bp: true },
+  { id: 'bp_10',    emoji: '😊', name: 'BP Lvl 10',  price: 0, bp: true },
+  { id: 'bp_15',    emoji: '😐', name: 'BP Lvl 15',  price: 0, bp: true },
+  { id: 'bp_20',    emoji: '🥲', name: 'BP Lvl 20',  price: 0, bp: true },
+  { id: 'bp_25',    emoji: '😜', name: 'BP Lvl 25',  price: 0, bp: true },
+];
+
+function playerSkins()   { return currentSave ? (currentSave.skins   || ['default']) : ['default']; }
+function equippedSkin()  { return currentSave ? (currentSave.equippedSkin || 'default') : 'default'; }
+function skinEmoji()     { return ALL_SKINS.find(s=>s.id===equippedSkin())?.emoji || '😃'; }
+
+function renderSzafka() {
+  const grid = document.getElementById('szafka-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const owned = playerSkins();
+  const eq    = equippedSkin();
+  ALL_SKINS.forEach(sk => {
+    if (!owned.includes(sk.id)) return;
+    const div = document.createElement('div');
+    div.className = 'szafka-item' + (sk.id === eq ? ' equipped' : '');
+    div.innerHTML = `<span class="szafka-equipped-badge">WYP.</span>${sk.emoji}<div class="szafka-item-label">${sk.name}</div>`;
+    div.addEventListener('click', () => equipSkin(sk.id));
+    grid.appendChild(div);
+  });
+}
+
+function equipSkin(id) {
+  if (!currentSave) return;
+  currentSave.equippedSkin = id;
+  persistCurrentSave();
+  updateLobbyTopbar();
+  renderSzafka();
+  renderShop();
+}
+
+function renderShop() {
+  const owned = playerSkins();
+  ALL_SKINS.forEach(sk => {
+    const btn = document.getElementById('btn-buy-' + sk.id);
+    if (!btn) return;
+    if (owned.includes(sk.id)) { btn.textContent = '✔ Posiadasz'; btn.className = 'sklep-buy-btn owned'; }
+    else { btn.textContent = `💰 ${sk.price}`; btn.className = 'sklep-buy-btn'; }
+  });
+  // Battle pass button
+  const bpBtn = document.getElementById('btn-buy-battlepass');
+  if (bpBtn) {
+    if (currentSave && currentSave.hasBattlePass) {
+      bpBtn.textContent = '✔ Aktywny'; bpBtn.className = 'sklep-buy-btn owned';
+    } else {
+      bpBtn.textContent = '💰 400'; bpBtn.className = 'sklep-buy-btn';
+      bpBtn.style.background = 'linear-gradient(135deg,#7a3aee,#aa3aee)';
+      bpBtn.style.color = '#fff';
+    }
+  }
+}
+
+function buyAngelSkin() {
+  if (!currentSave) { alert('Zaloguj się najpierw!'); return; }
+  const owned = playerSkins();
+  if (owned.includes('angel')) return;
+  if ((currentSave.money || 0) < 80) { alert('Za mało X-Money! Potrzebujesz 80 💰'); return; }
+  currentSave.money -= 80;
+  if (!currentSave.skins) currentSave.skins = ['default'];
+  currentSave.skins.push('angel');
+  persistCurrentSave();
+  updateLobbyTopbar();
+  renderShop();
+  renderSzafka();
+  playSound('buy');
+}
+
+function buyCoolSkin() {
+  if (!currentSave) { alert('Zaloguj się najpierw!'); return; }
+  const owned = playerSkins();
+  if (owned.includes('cool')) return;
+  if ((currentSave.money || 0) < 140) { alert('Za mało X-Money! Potrzebujesz 140 💰'); return; }
+  currentSave.money -= 140;
+  if (!currentSave.skins) currentSave.skins = ['default'];
+  currentSave.skins.push('cool');
+  persistCurrentSave();
+  updateLobbyTopbar();
+  renderShop();
+  renderSzafka();
+  playSound('buy');
+}
+
+function buyHappySkin() {
+  if (!currentSave) { alert('Zaloguj się najpierw!'); return; }
+  const owned = playerSkins();
+  if (owned.includes('happy')) return;
+  if ((currentSave.money || 0) < 45) { alert('Za mało X-Money! Potrzebujesz 45 💰'); return; }
+  currentSave.money -= 45;
+  if (!currentSave.skins) currentSave.skins = ['default'];
+  currentSave.skins.push('happy');
+  persistCurrentSave();
+  updateLobbyTopbar();
+  renderShop();
+  renderSzafka();
+  playSound('buy');
+}
+
+function buyBattlePass() {
+  if (!currentSave) { alert('Zaloguj się najpierw!'); return; }
+  if (currentSave.hasBattlePass) return;
+  if ((currentSave.money || 0) < 400) { alert('Za mało X-Money! Potrzebujesz 400 💰'); return; }
+  currentSave.money -= 400;
+  currentSave.hasBattlePass = true;
+  persistCurrentSave();
+  updateLobbyTopbar();
+  renderShop();
+  playSound('buy');
+}
+
+// ══════════════════════════════════════════════
+//  XP & LEVEL SYSTEM
+// ══════════════════════════════════════════════
+function addXP(amount) {
+  if (!currentSave) return;
+  if (!currentSave.xp) currentSave.xp = 0;
+  if (!currentSave.level) currentSave.level = 1;
+  currentSave.xp += amount;
+  currentSave.level = Math.floor(currentSave.xp / 100) + 1;
+  persistCurrentSave();
+  updateLobbyTopbar();
+}
+
+// ══════════════════════════════════════════════
+//  DAILY GIFT
+// ══════════════════════════════════════════════
+function getDailyResetDate(dateStr) {
+  // Returns a string key for the day the gift applies to (resets at 06:00)
+  // dateStr from Date object
+  const d = dateStr ? new Date(dateStr) : new Date();
+  // If hour < 6, it still belongs to "previous day's period"
+  if (d.getHours() < 6) d.setDate(d.getDate() - 1);
+  return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+}
+
+function getDailyAmount(streak) {
+  if (streak <= 1)  return 15;
+  if (streak <= 4)  return 20;
+  return 30;
+}
+
+function renderDailyGift() {
+  if (!currentSave) return;
+  const streak = currentSave.dailyStreak || 0;
+  const lastClaim = currentSave.dailyLastClaim || null;
+  const todayKey = getDailyResetDate();
+  const amount = getDailyAmount(streak + 1);
+
+  document.getElementById('dg-streak').textContent = streak;
+  document.getElementById('daily-gift-amount').textContent = amount + ' 💰 + 80 XP';
+
+  // Check if already claimed today
+  const alreadyClaimed = lastClaim && getDailyResetDate(lastClaim) === todayKey;
+
+  // Check if streak is broken (missed yesterday)
+  let streakBroken = false;
+  if (lastClaim && !alreadyClaimed) {
+    const yesterday = new Date();
+    if (yesterday.getHours() < 6) yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayKey = getDailyResetDate(yesterday);
+    if (getDailyResetDate(lastClaim) !== yesterdayKey) {
+      streakBroken = true;
+    }
+  }
+
+  const btn = document.getElementById('btn-daily-gift');
+  const nextEl = document.getElementById('daily-gift-next');
+
+  if (alreadyClaimed) {
+    btn.textContent = '✔ Odebrano dzisiaj';
+    btn.className = 'btn-daily-gift claimed';
+    // Time until next reset
+    const now = new Date();
+    const next = new Date();
+    next.setHours(6, 0, 0, 0);
+    if (now.getHours() >= 6) next.setDate(next.getDate() + 1);
+    const diff = next - now;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    nextEl.textContent = `Następny za: ${h}h ${m}min`;
+  } else {
+    btn.textContent = '🎁 ODBIERZ';
+    btn.className = 'btn-daily-gift';
+    nextEl.textContent = streakBroken && streak > 0 ? '⚠️ Passa zostanie zresetowana!' : '';
+  }
+
+  // Streak dots (show 10)
+  const dotsEl = document.getElementById('daily-streak-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'streak-dot';
+    if (alreadyClaimed && i <= streak) { dot.className = 'streak-dot done'; dot.textContent = '✔'; }
+    else if (alreadyClaimed && i === streak) { dot.className = 'streak-dot today'; dot.textContent = i; }
+    else if (!alreadyClaimed && i <= streak) { dot.className = 'streak-dot done'; dot.textContent = '✔'; }
+    else if (!alreadyClaimed && i === streak + 1) { dot.className = 'streak-dot today'; dot.textContent = i; }
+    else { dot.textContent = i; }
+    dotsEl.appendChild(dot);
+  }
+
+  // Streak info text
+  const nextStreak = streakBroken ? 1 : streak + 1;
+  const nextAmountLabel = getDailyAmount(nextStreak);
+  let streakMsg = `Passa: ${streak} dni z rzędu`;
+  if (streakBroken && streak > 0) streakMsg = `⚠️ Passa przerwana! Reset do 1`;
+  document.getElementById('dg-streak').textContent = streak;
+}
+
+function claimDailyGift() {
+  if (!currentSave) { alert('Zaloguj się najpierw!'); return; }
+  const lastClaim = currentSave.dailyLastClaim || null;
+  const todayKey = getDailyResetDate();
+  if (lastClaim && getDailyResetDate(lastClaim) === todayKey) return;
+
+  // Check streak continuity
+  let newStreak = 1;
+  if (lastClaim) {
+    const yesterday = new Date();
+    if (yesterday.getHours() < 6) yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayKey = getDailyResetDate(yesterday);
+    if (getDailyResetDate(lastClaim) === yesterdayKey) {
+      newStreak = (currentSave.dailyStreak || 0) + 1;
+    }
+  }
+
+  const amount = getDailyAmount(newStreak);
+  currentSave.dailyStreak = newStreak;
+  currentSave.dailyLastClaim = new Date().toISOString();
+  currentSave.money = (currentSave.money || 0) + amount;
+  currentSave.totalMoney = (currentSave.totalMoney || 0) + amount;
+  if (!currentSave.xp) currentSave.xp = 0;
+  currentSave.xp += 80;
+  currentSave.level = Math.floor(currentSave.xp / 100) + 1;
+  persistCurrentSave();
+  updateLobbyTopbar();
+  playSound('reward');
+  alert(`🎁 Odebrano ${amount} X-Money + 80 XP!\nPassa: ${newStreak} dni z rzędu! 🔥`);
+}
+
+// ══════════════════════════════════════════════
+//  BATTLE PASS UI
+// ══════════════════════════════════════════════
+const BP_REWARDS = [
+  { lvl: 5,  type: 'skin',   id: 'bp_5',  icon: '🙃', name: 'Skin: 🙃' },
+  { lvl: 10, type: 'skin',   id: 'bp_10', icon: '😊', name: 'Skin: 😊' },
+  { lvl: 15, type: 'skin',   id: 'bp_15', icon: '😐', name: 'Skin: 😐' },
+  { lvl: 20, type: 'skin',   id: 'bp_20', icon: '🥲', name: 'Skin: 🥲' },
+  { lvl: 25, type: 'skin',   id: 'bp_25', icon: '😜', name: 'Skin: 😜' },
+  { lvl: 30, type: 'money',  id: 'bp_30', icon: '💰', name: '25 X-Money', amount: 25 },
+  { lvl: 40, type: 'money',  id: 'bp_40', icon: '💰', name: '50 X-Money', amount: 50 },
+  { lvl: 50, type: 'money',  id: 'bp_50', icon: '💰', name: '125 X-Money', amount: 125 },
+];
+
+function openBattlePass() {
+  document.getElementById('bp-overlay').classList.add('active');
+  renderBattlePass();
+}
+
+function closeBattlePass() {
+  document.getElementById('bp-overlay').classList.remove('active');
+}
+
+function renderBattlePass() {
+  if (!currentSave) return;
+  const lvl = currentSave.level || 1;
+  const xp = currentSave.xp || 0;
+  const xpInLevel = xp % 100;
+  const claimed = currentSave.bpClaimed || [];
+  const hasBP = currentSave.hasBattlePass || false;
+
+  document.getElementById('bp-level-val').textContent = lvl;
+  document.getElementById('bp-xp-cur').textContent = xpInLevel;
+  document.getElementById('bp-xp-fill').style.width = xpInLevel + '%';
+
+  const list = document.getElementById('bp-rewards-list');
+  list.innerHTML = '';
+
+  BP_REWARDS.forEach(r => {
+    const isUnlocked = lvl >= r.lvl;
+    const isClaimed = claimed.includes(r.id);
+    const canClaim = isUnlocked && !isClaimed && hasBP;
+
+    const row = document.createElement('div');
+    row.className = 'bp-reward-row' + (isClaimed ? ' claimed' : isUnlocked ? ' unlocked' : '');
+
+    let actionHtml = '';
+    if (isClaimed) {
+      actionHtml = '<div class="bp-claimed-badge">✔ Odebrano</div>';
+    } else if (canClaim) {
+      actionHtml = `<button class="bp-claim-btn" onclick="claimBpReward('${r.id}')">ODBIERZ</button>`;
+    } else if (!hasBP && isUnlocked) {
+      actionHtml = '<div class="bp-locked-badge">🔒 Karnet</div>';
+    } else {
+      actionHtml = `<div class="bp-locked-badge">🔒 Lvl ${r.lvl}</div>`;
+    }
+
+    row.innerHTML = `
+      <div class="bp-reward-lvl">LVL ${r.lvl}</div>
+      <div class="bp-reward-icon">${r.icon}</div>
+      <div class="bp-reward-name">${r.name}</div>
+      ${actionHtml}
+    `;
+    list.appendChild(row);
+  });
+}
+
+function claimBpReward(id) {
+  if (!currentSave || !currentSave.hasBattlePass) return;
+  const r = BP_REWARDS.find(x => x.id === id);
+  if (!r) return;
+  const lvl = currentSave.level || 1;
+  if (lvl < r.lvl) return;
+  if (!currentSave.bpClaimed) currentSave.bpClaimed = [];
+  if (currentSave.bpClaimed.includes(id)) return;
+  currentSave.bpClaimed.push(id);
+  if (r.type === 'skin') {
+    if (!currentSave.skins) currentSave.skins = ['default'];
+    if (!currentSave.skins.includes(r.id)) currentSave.skins.push(r.id);
+  } else if (r.type === 'money') {
+    currentSave.money = (currentSave.money || 0) + r.amount;
+    currentSave.totalMoney = (currentSave.totalMoney || 0) + r.amount;
+  }
+  persistCurrentSave();
+  updateLobbyTopbar();
+  renderBattlePass();
+  playSound('reward');
+}
+
+// ══════════════════════════════════════════════
+//  PAYOUTS per placement
+// ══════════════════════════════════════════════
+function calcPayout(win, botsLeft) {
+  // place 1 = win; place 2 = 1 bot left; place 3 = 2 bots left; place 4-8 = 3+ bots left
+  if (win)           return 15;
+  if (botsLeft <= 1) return 12;
+  if (botsLeft <= 2) return 8;
+  return 3;
+}
+
+// ══════════════════════════════════════════════
+//  DAILY EARNINGS CAP (80 💰 / dzień, reset o 6:00)
+// ══════════════════════════════════════════════
+const DAILY_EARNINGS_CAP = 80;
+
+function getDailyEarningsKey() {
+  const d = new Date();
+  if (d.getHours() < 6) d.setDate(d.getDate() - 1);
+  return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+}
+
+function getDailyEarned() {
+  if (!currentSave) return 0;
+  const key = getDailyEarningsKey();
+  if (!currentSave.dailyEarnings || currentSave.dailyEarnings.day !== key) return 0;
+  return currentSave.dailyEarnings.amount || 0;
+}
+
+function addDailyEarned(amount) {
+  if (!currentSave) return amount;
+  const key = getDailyEarningsKey();
+  if (!currentSave.dailyEarnings || currentSave.dailyEarnings.day !== key) {
+    currentSave.dailyEarnings = { day: key, amount: 0 };
+  }
+  const remaining = Math.max(0, DAILY_EARNINGS_CAP - currentSave.dailyEarnings.amount);
+  const actual = Math.min(amount, remaining);
+  currentSave.dailyEarnings.amount += actual;
+  return actual;
+}
+
+function renderDailyEarningsBar() {
+  const earned = getDailyEarned();
+  const pct = Math.min(100, Math.round((earned / DAILY_EARNINGS_CAP) * 100));
+  const valEl = document.getElementById('daily-earned-val');
+  const barEl = document.getElementById('daily-earnings-bar');
+  if (valEl) valEl.textContent = earned;
+  if (barEl) {
+    barEl.style.width = pct + '%';
+    if (earned >= DAILY_EARNINGS_CAP) barEl.classList.add('full');
+    else barEl.classList.remove('full');
+  }
+  // Update reset timer
+  const resetEl = document.getElementById('daily-earnings-reset');
+  if (resetEl) {
+    const now = new Date();
+    const next = new Date();
+    next.setHours(6, 0, 0, 0);
+    if (now.getHours() >= 6) next.setDate(next.getDate() + 1);
+    const diff = next - now;
+    const hh = Math.floor(diff / 3600000);
+    const mm = Math.floor((diff % 3600000) / 60000);
+    resetEl.textContent = `Reset za: ${hh}h ${mm}m`;
+  }
+}
+
+// ══════════════════════════════════════════════
+//  SCREEN ROUTER
+// ══════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // Ambient music control
+  if (id === 'screen-menu') {
+    startAmbient('menu');
+  } else if (id === 'screen-lobby') {
+    startAmbient('lobby');
+  } else {
+    // game screen or other – stop ambient
+    stopAmbient();
+  }
+}
+
+// ══════════════════════════════════════════════
+//  MENU HANDLERS
+// ══════════════════════════════════════════════
+function onNewGame() {
+  if (!savesHaveSpace()) {
+    showScreen('screen-saves-full');
+    return;
+  }
+  document.getElementById('nick-input').value = '';
+  document.getElementById('nick-char-count').textContent = '0 / 14';
+  document.getElementById('nick-char-count').classList.remove('warn');
+  document.getElementById('btn-nick-confirm').classList.remove('ready');
+  showScreen('screen-nick');
+  setTimeout(() => document.getElementById('nick-input').focus(), 200);
+}
+
+function onLoginLocal() {
+  const saves = getSaves();
+  const list = document.getElementById('local-login-list');
+  const empty = document.getElementById('local-login-empty');
+  list.innerHTML = '';
+  if (!saves.length) {
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    saves.forEach((save, i) => {
+      const card = document.createElement('div');
+      card.className = 'save-card';
+      card.innerHTML = `
+        <div class="save-card-avatar">😃</div>
+        <div class="save-card-info">
+          <div class="save-card-nick">${save.nick}</div>
+          <div class="save-card-stats">Wygrane: ${save.wins} &nbsp;·&nbsp; X-Money: ${save.money}</div>
+        </div>
+        <button class="save-card-delete" onclick="deleteSave(${i}, event)">🗑️</button>
+      `;
+      card.addEventListener('click', () => {
+        loadSave(save);
+        startKontoRefresh();
+        showScreen('screen-lobby');
+        switchTab('lobby');
+      });
+      list.appendChild(card);
+    });
+  }
+  showScreen('screen-local-login');
+}
+
+function deleteSave(idx, e) {
+  e.stopPropagation();
+  const saves = getSaves();
+  saves.splice(idx, 1);
+  putSaves(saves);
+  onLoginLocal(); // refresh
+}
+
+// ══════════════════════════════════════════════
+//  NICK INPUT
+// ══════════════════════════════════════════════
+function onNickInput() {
+  const inp = document.getElementById('nick-input');
+  const val = inp.value.slice(0, 14);
+  inp.value = val;
+  const len = val.length;
+  const cc = document.getElementById('nick-char-count');
+  cc.textContent = len + ' / 14';
+  cc.classList.toggle('warn', len >= 12);
+  const btn = document.getElementById('btn-nick-confirm');
+  btn.classList.toggle('ready', len >= 1);
+}
+
+function onNickConfirm() {
+  const nick = document.getElementById('nick-input').value.trim();
+  if (!nick) return;
+  const save = createSave(nick);
+  const saves = getSaves();
+  saves.push(save);
+  putSaves(saves);
+  loadSave(save);
+  startKontoRefresh();
+  // New account: launch tutorial
+  startTutorial();
+}
+
+// ══════════════════════════════════════════════
+//  LOBBY TABS
+// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  KONTO TAB
+// ══════════════════════════════════════════════
+function formatPlayTime(seconds) {
+  if (seconds < 60) return seconds + 's';
+  if (seconds < 3600) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}min ${s}s`;
+  }
+  if (seconds < 86400) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    return `${h}h ${m}min`;
+  }
+  const d = Math.floor(seconds / 86400);
+  const h = Math.floor((seconds % 86400) / 3600);
+  return `${d}dni ${h}h`;
+}
+
+function renderKonto() {
+  const noSave = document.getElementById('konto-no-save');
+  const grid   = document.getElementById('konto-stats-grid');
+  const header = document.getElementById('konto-header');
+  const timeCard = document.getElementById('konto-time-card');
+  if (!currentSave) {
+    noSave.style.display = 'block';
+    grid.style.display = 'none';
+    header.style.display = 'none';
+    timeCard.style.display = 'none';
+    return;
+  }
+  noSave.style.display = 'none';
+  grid.style.display = 'grid';
+  header.style.display = 'flex';
+  timeCard.style.display = 'flex';
+
+  document.getElementById('konto-avatar').textContent = skinEmoji();
+  document.getElementById('konto-nick').textContent = currentSave.nick;
+  document.getElementById('konto-level').textContent = `Poziom ${currentSave.level || 1} · ${currentSave.xp || 0} XP`;
+  document.getElementById('konto-wins').textContent = currentSave.wins || 0;
+  document.getElementById('konto-kills').textContent = currentSave.totalKills || 0;
+  document.getElementById('konto-forges').textContent = currentSave.totalForges || 0;
+  document.getElementById('konto-money').textContent = currentSave.totalMoney || 0;
+  document.getElementById('konto-boss-kills').textContent = currentSave.totalBossKills || 0;
+  document.getElementById('konto-games').textContent = currentSave.totalGames || 0;
+  document.getElementById('konto-time-val').textContent = formatPlayTime(getTotalPlayTime());
+  startKontoRefresh();
+}
+
+// ── Czas gry: ciągłe liczenie od zalogowania (lobby + gra) ──
+let _sessionStartTime = null;   // czas startu bieżącej sesji
+let _kontoRefreshInterval = null;
+
+function startSessionTimer() {
+  _sessionStartTime = Date.now();
+}
+
+function getElapsedSession() {
+  if (!_sessionStartTime) return 0;
+  return Math.floor((Date.now() - _sessionStartTime) / 1000);
+}
+
+function getTotalPlayTime() {
+  return (currentSave ? (currentSave.totalPlayTime || 0) : 0) + getElapsedSession();
+}
+
+function flushSessionTime() {
+  // Zapisz aktualny czas sesji do save bez resetowania timera
+  if (!currentSave || !_sessionStartTime) return;
+  const elapsed = getElapsedSession();
+  currentSave.totalPlayTime = (currentSave.totalPlayTime || 0) + elapsed;
+  _sessionStartTime = Date.now(); // reset punktu startowego – nie sumujemy podwójnie
+  persistCurrentSave();
+}
+
+function startKontoRefresh() {
+  if (_kontoRefreshInterval) return;
+  _kontoRefreshInterval = setInterval(() => {
+    // Odświeżaj czas w zakładce konto jeśli jest aktywna
+    const tab = document.getElementById('tab-konto');
+    if (tab && tab.classList.contains('active') && currentSave) {
+      document.getElementById('konto-time-val').textContent = formatPlayTime(getTotalPlayTime());
+    }
+    // Co 30s zapisz czas do save (żeby nie przepadł przy zamknięciu)
+    if (currentSave && _sessionStartTime) {
+      const elapsed = getElapsedSession();
+      if (elapsed > 0 && elapsed % 30 === 0) flushSessionTime();
+    }
+  }, 1000);
+}
+
+// Stary startPlayTimer / stopPlayTimer – zachowane dla kompatybilności
+function startPlayTimer() { /* czas liczony ciągle, nic do roboty */ }
+function stopPlayTimer() { flushSessionTime(); }
+
+function switchTab(name) {
+  ['lobby','zadania','sklep','szafka','konto'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+    document.getElementById('tab-btn-' + t).classList.toggle('active', t === name);
+  });
+  if (name === 'zadania') renderQuests();
+  if (name === 'konto') renderKonto();
+}
+
+// ══════════════════════════════════════════════
+//  FIND GAME (8-second search animation)
+// ══════════════════════════════════════════════
+const SEARCH_MESSAGES = [
+  'Łączenie z serwerem…',
+  'Szukanie graczy…',
+  'Sprawdzanie lobbies…',
+  'Znaleziono mecz!',
+];
+
+let _searchMsgInterval = null;
+let _searchTimeout = null;
+
+function onFindGame() {
+  const overlay = document.getElementById('searching-overlay');
+  const statusEl = document.getElementById('searching-status');
+  overlay.classList.add('active');
+  document.getElementById('btn-find-game').disabled = true;
+
+  let msgIdx = 0;
+  _searchMsgInterval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % SEARCH_MESSAGES.length;
+    statusEl.textContent = SEARCH_MESSAGES[msgIdx];
+  }, 2000);
+
+  _searchTimeout = setTimeout(() => {
+    _searchMsgInterval && clearInterval(_searchMsgInterval);
+    overlay.classList.remove('active');
+    document.getElementById('btn-find-game').disabled = false;
+    startGame();
+  }, (selectedGameMode === 'fast' || selectedGameMode === 'chaos') ? 5000 : 8000);
+}
+
+function onCancelSearch() {
+  _searchMsgInterval && clearInterval(_searchMsgInterval);
+  _searchTimeout    && clearTimeout(_searchTimeout);
+  _searchMsgInterval = null; _searchTimeout = null;
+  document.getElementById('searching-overlay').classList.remove('active');
+  document.getElementById('btn-find-game').disabled = false;
+  document.getElementById('searching-status').textContent = 'Łączenie z serwerem…';
+}
+
+function startGame() {
+  showScreen('screen-game');
+  initGame();
+}
+
+function goToLobby() {
+  stopPlayTimer();
+  document.getElementById('overlay').style.display = 'none';
+  showScreen('screen-lobby');
+  switchTab('lobby');
+  updateLobbyTopbar();
+}
+
+// ══════════════════════════════════════════════
+//  GAME LOGIC
+// ══════════════════════════════════════════════
+const BOT_SKINS = ['😁', '😇', '😃', '🤖', '🙃', '😊', '😐', '🥲', '😜'];
+
+function rndBotSkin() { return BOT_SKINS[Math.floor(Math.random() * BOT_SKINS.length)]; }
+
+// ── Stałe trybu Classic ──
+const CLASSIC = { MAP_SIZE:21, VIEW_NORMAL:7, VIEW_SCOPE:9, BOX_COUNT:20, STORM_EVERY:4, MAX_HP:100,
+  CORNERS:[{x:0,y:0},{x:20,y:0},{x:0,y:20},{x:20,y:20},{x:10,y:0},{x:10,y:20},{x:0,y:10},{x:20,y:10}] };
+// ── Stałe trybu Fast Battle ──
+const FAST   = { MAP_SIZE:15, VIEW_NORMAL:7, VIEW_SCOPE:9, BOX_COUNT:14, STORM_EVERY:2, MAX_HP:75,
+  CORNERS:[{x:0,y:0},{x:14,y:0},{x:0,y:14},{x:14,y:14}] };
+// ── Stałe trybu Chaos Battle ──
+const CHAOS  = { MAP_SIZE:11, VIEW_NORMAL:7, VIEW_SCOPE:9, BOX_COUNT:0, STORM_EVERY:1, MAX_HP:100,
+  CORNERS:[{x:0,y:0},{x:10,y:0},{x:0,y:10},{x:10,y:10}] };
+
+// Aktywna konfiguracja (ustawiana przy starcie gry)
+let GCFG = CLASSIC;
+
+const BOT_DELAY   = 300;
+
+// Dynamiczne aliasy – używane w całej logice gry
+let MAP_SIZE, VIEW_NORMAL, VIEW_SCOPE, BOX_COUNT, STORM_EVERY, MAX_HP, CORNERS;
+
+function applyGameConfig(cfg) {
+  GCFG = cfg;
+  MAP_SIZE   = cfg.MAP_SIZE;
+  VIEW_NORMAL= cfg.VIEW_NORMAL;
+  VIEW_SCOPE = cfg.VIEW_SCOPE;
+  BOX_COUNT  = cfg.BOX_COUNT;
+  STORM_EVERY= cfg.STORM_EVERY;
+  MAX_HP     = cfg.MAX_HP;
+  CORNERS    = cfg.CORNERS;
+}
+
+let VIEW = VIEW_NORMAL;
+let HALF = Math.floor(VIEW / 2);
+
+const ITEM_POOL = [
+  { id:'sword',    name:'Miecz',            emoji:'⚔️',  img:'miecz.png',       type:'weapon',     dmg:12, range:1 },
+  { id:'bow',      name:'Łuk',              emoji:'🏹',  img:'łuk.png',         type:'weapon',     dmg:7,  range:3 },
+  { id:'kula',     name:'Kolczasta kula',   emoji:'🔮',  img:'kula.png',        type:'weapon',     dmg:18, range:2 },
+  { id:'medkit',   name:'Apteczka',         emoji:'💊',  img:'apteczka.png',    type:'consumable', subtype:'heal', healAmt:70, healTurns:2 },
+  { id:'mikstura', name:'Mikstura',         emoji:'🧪',  img:'mikstura.png',    type:'consumable', subtype:'shield', shieldAmt:50, drinkTurns:2 },
+  { id:'scope',    name:'Luneta',           emoji:'🔭',  img:'luneta.png',      type:'passive',    subtype:'scope', viewBoost:2 },
+  { id:'medalion', name:'Medalion leczenia',emoji:'🏅',  img:'hpmedalion.png',  type:'item',       subtype:'regen', hpPerTurn:3 },
+  { id:'buty',     name:'Buty',             emoji:'👢',  img:'buty.png',        type:'item',       subtype:'diagonal' }
+];
+const ITEM_SLOT_IDS = ['scope','medalion','buty'];
+const EQ_ITEM_POOL = ITEM_POOL.filter(i => !ITEM_SLOT_IDS.includes(i.id));
+const FULL_ITEM_POOL = ITEM_POOL;
+
+// Zwraca HTML obrazka (img) lub emoji jako fallback
+function itemImgHTML(item, cls) {
+  if (!item) return '';
+  const c = cls || 'item-img';
+  if (item.img) return `<img src="${item.img}" class="${c}" alt="${item.name}" onerror="this.style.display='none';this.nextSibling&&(this.nextSibling.style.display='inline')"><span style="display:none">${item.emoji}</span>`;
+  return item.emoji;
+}
+function boxImgHTML() {
+  return `<img src="skrzynka.png" class="item-img" alt="Skrzynka" onerror="this.style.display='none';this.insertAdjacentText('afterend','📦')">`;
+}
+const rndItem = () => {
+  // 20% chance to drop an item-slot item (scope or medalion), 80% regular eq item
+  if (Math.random() < 0.2) {
+    const itemSlotItems = ITEM_POOL.filter(i => ITEM_SLOT_IDS.includes(i.id));
+    return { ...itemSlotItems[Math.floor(Math.random() * itemSlotItems.length)] };
+  }
+  return { ...EQ_ITEM_POOL[Math.floor(Math.random() * EQ_ITEM_POOL.length)] };
+};
+
+let playerHP, playerPos, playerEq, eqActive, playerItemSlot;
+let playerShield = 0;
+let playerHealTurns;
+let playerShieldTurns = 0;
+let bots, boxes, groundItems;
+let turn, turnsSinceStorm, gameOver, botPhase;
+let storm;
+let cells = [];
+let actionMode = null;
+let prevVX = -1, prevVY = -1;
+let forgeTile = null; // {x, y} lub null jeśli zużyty
+let boss = null; // {pos, hp, alive, weapon} lub null
+
+function playerHasScope() { return (playerItemSlot && playerItemSlot.id === 'scope') || playerEq.some(i => i && i.id === 'scope'); }
+function playerHasButy() { return playerItemSlot && playerItemSlot.id === 'buty'; }
+const botHasButy = b => b.itemSlot && b.itemSlot.id === 'buty';
+function updateViewSize() {
+  const newView = playerHasScope() ? VIEW_SCOPE : VIEW_NORMAL;
+  if (newView === VIEW) return;
+  VIEW = newView; HALF = Math.floor(VIEW / 2);
+  buildGrid();
+}
+
+function selectEq(idx) {
+  if (playerHealTurns > 0) return;
+  if (actionMode === 'attack') { actionMode = null; }
+  eqActive = idx;
+  for (let i = 0; i < 3; i++)
+    document.getElementById('eq-' + i).classList.toggle('active', i === idx);
+  renderEq();
+  updBtns();
+}
+
+function renderEq() {
+  for (let i = 0; i < 3; i++) {
+    const slot = document.getElementById('eq-' + i);
+    const item = playerEq[i];
+    if (item) {
+      const stackBadge = ((item.id === 'medkit' || item.id === 'mikstura') && (item.count || 1) > 1)
+        ? `<span style="position:absolute;top:1px;left:3px;font-size:0.55rem;font-weight:900;color:#44ffaa;line-height:1;text-shadow:0 0 4px #22ff44;pointer-events:none;">x${item.count}</span>`
+        : '';
+      const upgradeGlow = item.upgraded ? ' upgraded' : '';
+      slot.innerHTML = `${itemImgHTML(item,'eq-item-img'+upgradeGlow)}${stackBadge}<span class="eq-slot-num">${i+1}</span>`;
+      if (item.upgraded) slot.style.boxShadow = '0 0 8px #ff4444, inset 0 0 6px #ff220033';
+      else slot.style.boxShadow = '';
+      if (item.type === 'weapon') slot.title = `${item.name}${item.upgraded?' ⚡ULEPSZONA':''} | DMG:${item.dmg} | Zasięg:${item.range}`;
+      else if (item.id === 'scope') slot.title = `${item.name} | Widok 9×9`;
+      else if (item.id === 'medkit') slot.title = `${item.name} x${item.count||1} | +${item.healAmt}HP przez ${item.healTurns} tury`;
+      else if (item.id === 'mikstura') slot.title = `${item.name} x${item.count||1} | +${item.shieldAmt}🛡️ po ${item.drinkTurns} turach`;
+      else slot.title = `${item.name} | +${item.healAmt}HP przez ${item.healTurns} tury`;
+    } else {
+      slot.innerHTML = `<span class="eq-slot-num">${i+1}</span>`;
+      slot.title = 'Pusty';
+      slot.style.boxShadow = '';
+    }
+  }
+  renderItemSlot();
+  setEqLog();
+}
+
+function addToEq(item, dropX, dropY) {
+  // scope, medalion, buty go to item slot
+  if (ITEM_SLOT_IDS.includes(item.id)) {
+    const old = playerItemSlot;
+    playerItemSlot = item;
+    if (old && dropX !== undefined) groundItems.push({ x: dropX, y: dropY, item: old });
+    renderItemSlot(); renderEq(); setEqLog(); return 'item';
+  }
+  // Apteczki stackują się do 3 w jednym slocie
+  if (item.id === 'medkit') {
+    for (let i = 0; i < 3; i++) {
+      if (playerEq[i] && playerEq[i].id === 'medkit' && (playerEq[i].count || 1) < 3) {
+        playerEq[i] = { ...playerEq[i], count: (playerEq[i].count || 1) + 1 };
+        renderEq(); setEqLog(); return i;
+      }
+    }
+  }
+  // Mikstury stackują się do 2 w jednym slocie
+  if (item.id === 'mikstura') {
+    for (let i = 0; i < 3; i++) {
+      if (playerEq[i] && playerEq[i].id === 'mikstura' && (playerEq[i].count || 1) < 2) {
+        playerEq[i] = { ...playerEq[i], count: (playerEq[i].count || 1) + 1 };
+        renderEq(); setEqLog(); return i;
+      }
+    }
+  }
+  for (let i = 0; i < 3; i++) {
+    if (!playerEq[i]) { playerEq[i] = item; updateViewSize(); renderEq(); setEqLog(); return i; }
+  }
+  const dropped = playerEq[eqActive];
+  if (dropped && dropX !== undefined) groundItems.push({ x: dropX, y: dropY, item: dropped });
+  playerEq[eqActive] = item; updateViewSize(); renderEq(); setEqLog(); return eqActive;
+}
+
+function getActiveItem() { return playerEq[eqActive] || null; }
+function getWeapon() { const it = getActiveItem(); return (it && it.type === 'weapon') ? it : null; }
+
+// Czy gracz stoi na aktywnym złotym kwadracie
+const onForgeTile = () => forgeTile && playerPos.x===forgeTile.x && playerPos.y===forgeTile.y;
+
+// Czy można ulepszyć (stoi na kuźni, ma broń, nie apteczkę)
+const canForge = () => {
+  if (!onForgeTile()) return false;
+  const it = getActiveItem();
+  return it && it.type === 'weapon' && !it.upgraded;
+};
+
+function doForge() {
+  if (!canForge()) return;
+  const it = getActiveItem();
+  const newDmg = Math.floor(it.dmg * 1.5);
+  playerEq[eqActive] = { ...it, dmg: newDmg, upgraded: true };
+  forgeTile = null; // kuźnia zużyta
+  if (currentSave) {
+    currentSave.totalForges = (currentSave.totalForges || 0) + 1;
+    persistCurrentSave();
+  }
+  renderEq(); updBtns(); renderAll(false);
+  playSound('goldforge');
+  setLog(`⚡ Broń ulepszona! ${it.name} DMG: ${it.dmg} → ${newDmg} 🔥`);
+  if (tutActive) tutOnForge();
+}
+
+function buildGrid() {
+  const g = document.getElementById('map-grid');
+  g.innerHTML = ''; cells = [];
+  g.style.gridTemplateColumns = `repeat(${VIEW}, 1fr)`;
+  g.style.gridTemplateRows    = `repeat(${VIEW}, 1fr)`;
+  for (let i = 0; i < VIEW * VIEW; i++) {
+    const c = document.createElement('div');
+    c.className = 'cell';
+    c.addEventListener('click', onCellClick);
+    g.appendChild(c); cells.push(c);
+  }
+  prevVX = -1; prevVY = -1;
+}
+
+function spawnBoxes() {
+  boxes = []; groundItems = [];
+  const used = new Set(CORNERS.map(c => c.x+','+c.y));
+  let att = 0;
+  while (boxes.length < BOX_COUNT && att++ < 3000) {
+    const x = Math.floor(Math.random()*MAP_SIZE);
+    const y = Math.floor(Math.random()*MAP_SIZE);
+    const k = x+','+y;
+    if (!used.has(k)) { used.add(k); boxes.push({x,y}); }
+  }
+}
+const isBox  = (x,y) => boxes.some(b=>b.x===x&&b.y===y);
+const remBox = (x,y) => { boxes = boxes.filter(b=>!(b.x===x&&b.y===y)); };
+const gItem  = (x,y) => groundItems.find(g=>g.x===x&&g.y===y) || null;
+const remGnd = (x,y) => { groundItems = groundItems.filter(g=>!(g.x===x&&g.y===y)); };
+
+function initGame() {
+  document.getElementById('overlay').style.display = 'none';
+  // Zaaplikuj konfigurację trybu
+  const isChaos = selectedGameMode === 'chaos';
+  const isFast  = selectedGameMode === 'fast';
+  applyGameConfig(isChaos ? CHAOS : isFast ? FAST : CLASSIC);
+
+  gameOver = false; botPhase = false; actionMode = null;
+  playerHP = MAX_HP; playerEq = [null,null,null]; eqActive = 0; playerItemSlot = null;
+  playerHealTurns = 0; playerShield = 0; playerShieldTurns = 0;
+  turn = 1; turnsSinceStorm = 0;
+  VIEW = VIEW_NORMAL; HALF = Math.floor(VIEW / 2);
+
+  // Złoty kwadrat: brak w Chaos
+  if (isChaos) {
+    forgeTile = null;
+  } else {
+    const fc = Math.floor(MAP_SIZE / 2);
+    forgeTile = { x: fc, y: fc };
+  }
+
+  // Burza: Chaos = natychmiast cała mapa; inne = nieaktywna
+  if (isChaos) {
+    storm = { active:true, leftEdge:MAP_SIZE, rightEdge:-1, topEdge:MAP_SIZE, bottomEdge:-1 };
+    stormPhase = 0; stormSide = null;
+  } else {
+    storm = { active:false, leftEdge:-1, rightEdge:MAP_SIZE, topEdge:-1, bottomEdge:MAP_SIZE };
+    stormPhase = 0; stormSide = null;
+  }
+
+  const sh = [...CORNERS].sort(()=>Math.random()-.5);
+  playerPos = {...sh[0]};
+  // Fast Battle: 3 boty; Classic: do 7 botów; Chaos: 3 boty
+  const botCount = (isFast || isChaos) ? 3 : 7;
+  bots = sh.slice(1, botCount + 1).map(p => ({ pos:{...p}, hp:MAX_HP, alive:true, eq:[null,null,null], healTurns:0, skin:rndBotSkin(), itemSlot:null, shield:0, shieldTurns:0 }));
+
+  // Tytuł gry w ekranie
+  document.getElementById('title').textContent = isChaos
+    ? '🌪️ CHAOS BATTLE V5.6'
+    : isFast
+    ? '⚡ FAST BATTLE V5.6'
+    : '🏝️ KIWI ROYALE V5.6';
+
+  spawnBoxes(); buildGrid();
+
+  // Spawn Boss: tylko Classic
+  boss = null;
+  if (!isFast && !isChaos) {
+    let bx, by, att2 = 0;
+    do {
+      bx = Math.floor(Math.random()*MAP_SIZE);
+      by = Math.floor(Math.random()*MAP_SIZE);
+      att2++;
+    } while (att2 < 3000 && (
+      (forgeTile && bx===forgeTile.x && by===forgeTile.y) ||
+      isBox(bx,by) ||
+      (playerPos.x===bx && playerPos.y===by) ||
+      bots.some(b=>b.pos.x===bx&&b.pos.y===by)
+    ));
+    const bossBow = { ...ITEM_POOL.find(i=>i.id==='bow'), dmg: Math.floor(ITEM_POOL.find(i=>i.id==='bow').dmg * 1.5), upgraded: true, rarityLocked: true };
+    boss = { pos:{x:bx,y:by}, hp:100, maxHp:100, shield:100, maxShield:100, alive:true, weapon: bossBow };
+  }
+
+  // Chaos: losowe startowe wyposażenie dla gracza i botów
+  if (isChaos) {
+    const weapons   = ITEM_POOL.filter(i=>i.type==='weapon');
+    const itemSlots = ITEM_POOL.filter(i=>ITEM_SLOT_IDS.includes(i.id));
+    const heals     = ITEM_POOL.filter(i=>i.id==='medkit'||i.id==='mikstura');
+
+    function giveStartGear(eq, itemSlotRef) {
+      // 1 losowa broń
+      eq[0] = { ...weapons[Math.floor(Math.random()*weapons.length)] };
+      // 1 losowy item slot
+      itemSlotRef.item = { ...itemSlots[Math.floor(Math.random()*itemSlots.length)] };
+      // 2 losowe przedmioty leczące (mogą się powtórzyć)
+      for (let s = 1; s <= 2; s++) {
+        eq[s] = { ...heals[Math.floor(Math.random()*heals.length)] };
+      }
+    }
+
+    // Gracz
+    const pSlotHolder = {};
+    giveStartGear(playerEq, pSlotHolder);
+    playerItemSlot = pSlotHolder.item;
+
+    // Boty
+    bots.forEach(b => {
+      const bSlotHolder = {};
+      giveStartGear(b.eq, bSlotHolder);
+      b.itemSlot = bSlotHolder.item;
+    });
+  }
+
+  prevVX = -1; prevVY = -1;
+  selectEq(0);
+  updateHealUI();
+  renderAll(false); updBtns(); setCtrl(true);
+  setLog(isChaos ? '🌪️ CHAOS BATTLE! Cała mapa w burzy! Walcz do końca! 😈' : 'Gra się rozpoczyna! Twój ruch. 😃');
+  startPlayTimer();
+}
+
+const isStorm = (x,y) => {
+  if (!storm.active) return false;
+  // Chaos: cała mapa w burzy zawsze
+  if (selectedGameMode === 'chaos') return true;
+  return x<=storm.leftEdge||x>=storm.rightEdge||y<=storm.topEdge||y>=storm.bottomEdge;
+};
+const stormDmg = () => selectedGameMode === 'chaos' ? 5 : 10;
+// stormPhase: 0 = shrink left or right, 1 = shrink top or bottom
+// stormSide: for phase 0: 0=left, 1=right; for phase 1: 0=top, 1=bottom
+let stormPhase = 0;
+let stormSide = null; // null = not yet chosen for this phase
+
+function advStorm() {
+  storm.active = true;
+  if (stormSide === null) {
+    // First call: pick a random side for first phase (horizontal)
+    stormSide = Math.random() < 0.5 ? 0 : 1;
+  }
+  if (stormPhase === 0) {
+    // Shrink left OR right
+    if (stormSide === 0) {
+      storm.leftEdge = Math.min(storm.leftEdge + 1, Math.floor(MAP_SIZE / 2));
+    } else {
+      storm.rightEdge = Math.max(storm.rightEdge - 1, Math.ceil(MAP_SIZE / 2));
+    }
+    // Next call will be phase 1, pick random side (top or bottom)
+    stormPhase = 1;
+    stormSide = Math.random() < 0.5 ? 0 : 1;
+  } else {
+    // Shrink top OR bottom
+    if (stormSide === 0) {
+      storm.topEdge = Math.min(storm.topEdge + 1, Math.floor(MAP_SIZE / 2));
+    } else {
+      storm.bottomEdge = Math.max(storm.bottomEdge - 1, Math.ceil(MAP_SIZE / 2));
+    }
+    // Next call will be phase 0, pick random side (left or right)
+    stormPhase = 0;
+    stormSide = Math.random() < 0.5 ? 0 : 1;
+  }
+}
+function updateHealUI() {
+  const healing = playerHealTurns > 0;
+  const shielding = playerShieldTurns > 0;
+  const lbl  = document.getElementById('heal-label');
+  const wrap = document.getElementById('heal-bar-wrap');
+  const bar  = document.getElementById('heal-bar');
+  const sp   = document.getElementById('heal-turns-left');
+  if (healing) {
+    const totalTurns = ITEM_POOL.find(i=>i.id==='medkit').healTurns;
+    lbl.innerHTML = '💊 Leczenie… pozostało tur: <span id="heal-turns-left"></span>';
+    lbl.style.display  = 'block';
+    wrap.style.display = 'block';
+    document.getElementById('heal-turns-left').textContent = playerHealTurns;
+    bar.style.width = ((totalTurns - playerHealTurns) / totalTurns) * 100 + '%';
+    bar.style.background = '';
+  } else if (shielding) {
+    const totalTurns = ITEM_POOL.find(i=>i.id==='mikstura').drinkTurns;
+    lbl.innerHTML = '🧪 Picie… pozostało tur: <span id="heal-turns-left"></span>';
+    lbl.style.display  = 'block';
+    wrap.style.display = 'block';
+    document.getElementById('heal-turns-left').textContent = playerShieldTurns;
+    bar.style.width = ((totalTurns - playerShieldTurns) / totalTurns) * 100 + '%';
+    bar.style.background = 'linear-gradient(90deg,#3aa0ff,#44ddff)';
+  } else {
+    lbl.style.display  = 'none';
+    wrap.style.display = 'none';
+  }
+}
+
+function renderAll(animPlayer) {
+  const vx = Math.max(0, Math.min(MAP_SIZE-VIEW, playerPos.x-HALF));
+  const vy = Math.max(0, Math.min(MAP_SIZE-VIEW, playerPos.y-HALF));
+  const shifted = (vx!==prevVX || vy!==prevVY);
+  prevVX = vx; prevVY = vy;
+
+  if (shifted) {
+    const outer = document.getElementById('map-outer');
+    outer.classList.remove('panning'); void outer.offsetWidth; outer.classList.add('panning');
+    setTimeout(()=>outer.classList.remove('panning'), 250);
+  }
+
+  for (let row=0; row<VIEW; row++) {
+    for (let col=0; col<VIEW; col++) {
+      const mx=vx+col, my=vy+row;
+      const c=cells[row*VIEW+col];
+      c._mx=mx; c._my=my;
+      c.classList.toggle('storm', isStorm(mx,my));
+      c.classList.remove('hl-pickup','hl-item','hl-attack','hl-use','forge');
+      // Złoty kwadrat kuźni
+      if (forgeTile && mx===forgeTile.x && my===forgeTile.y) c.classList.add('forge');
+      if (playerHealTurns > 0 && mx===playerPos.x && my===playerPos.y) c.classList.add('hl-use');
+      let isBot = false;
+      if (mx===playerPos.x && my===playerPos.y) {
+        c.textContent = playerHealTurns>0 ? '🤕' : skinEmoji();
+        if (animPlayer) { c.classList.remove('flash-move'); void c.offsetWidth; c.classList.add('flash-move'); }
+      } else {
+        const bot = bots.find(b=>b.alive&&b.pos.x===mx&&b.pos.y===my);
+        const bossHere = boss && boss.alive && boss.pos.x===mx && boss.pos.y===my;
+        if (bossHere) {
+          isBot = true; c.textContent = '';
+          c.appendChild(document.createTextNode('😈'));
+          const hf=Math.max(0,boss.hp)/boss.maxHp;
+          const hc=hf>.5?'#44ff44':hf>.25?'#ffaa00':'#ff4444';
+          const badge=document.createElement('span');
+          if (boss.shield > 0) {
+            badge.style.cssText=`position:absolute;bottom:1px;right:2px;font-size:0.42rem;font-weight:bold;color:#44ddff;line-height:1;pointer-events:none;`;
+            badge.textContent=boss.shield;
+          } else {
+            badge.style.cssText=`position:absolute;bottom:1px;right:2px;font-size:0.42rem;font-weight:bold;color:${hc};line-height:1;pointer-events:none;`;
+            badge.textContent=boss.hp;
+          }
+          c.appendChild(badge);
+          const wi=document.createElement('span');
+          wi.style.cssText='position:absolute;top:1px;left:2px;font-size:0.42rem;line-height:1;pointer-events:none;width:28%;height:28%;display:flex;align-items:center;justify-content:center;';
+          if (boss.weapon.img) {
+            const wimg=document.createElement('img');
+            wimg.src=boss.weapon.img; wimg.style.cssText='width:100%;height:100%;object-fit:contain;image-rendering:pixelated;';
+            wimg.onerror=()=>{ wi.textContent=boss.weapon.emoji; };
+            wi.appendChild(wimg);
+          } else { wi.textContent=boss.weapon.emoji; }
+          c.appendChild(wi);
+        } else if (bot) {
+          isBot = true; c.textContent = '';
+          const em = document.createTextNode(bot.healTurns>0 ? '🤕' : (bot.skin||'🤖'));
+          c.appendChild(em);
+          const hf=Math.max(0,bot.hp)/100;
+          const hc=hf>.5?'#44ff44':hf>.25?'#ffaa00':'#ff4444';
+          const badge=document.createElement('span');
+          if (bot.shield > 0) {
+            badge.style.cssText=`position:absolute;bottom:1px;right:2px;font-size:0.42rem;font-weight:bold;color:#44ddff;line-height:1;pointer-events:none;`;
+            badge.textContent=bot.shield;
+          } else {
+            badge.style.cssText=`position:absolute;bottom:1px;right:2px;font-size:0.42rem;font-weight:bold;color:${hc};line-height:1;pointer-events:none;`;
+            badge.textContent=bot.hp;
+          }
+          c.appendChild(badge);
+          const bwpn=botBestWpn(bot);
+          if (bwpn) {
+            const wi=document.createElement('span');
+            wi.style.cssText='position:absolute;top:1px;left:2px;font-size:0.42rem;line-height:1;pointer-events:none;width:28%;height:28%;display:flex;align-items:center;justify-content:center;';
+            if (bwpn.img) {
+              const wimg=document.createElement('img');
+              wimg.src=bwpn.img; wimg.style.cssText='width:100%;height:100%;object-fit:contain;image-rendering:pixelated;';
+              wimg.onerror=()=>{ wi.textContent=bwpn.emoji; };
+              wi.appendChild(wimg);
+            } else { wi.textContent=bwpn.emoji; }
+            c.appendChild(wi);
+          }
+        } else {
+          const gi=gItem(mx,my);
+          if (gi) {
+            c.innerHTML = itemImgHTML(gi.item,'item-img' + (gi.item.upgraded ? ' upgraded' : ''));
+          } else if (isBox(mx,my)) {
+            c.innerHTML = boxImgHTML();
+          } else {
+            c.textContent = '';
+          }
+        }
+      }
+      if (shifted && !isBot) { c.classList.remove('flash-move'); void c.offsetWidth; c.classList.add('flash-move'); }
+    }
+  }
+
+  if (actionMode==='pickup') {
+    for (const c of cells) {
+      const dx=Math.abs(c._mx-playerPos.x), dy=Math.abs(c._my-playerPos.y);
+      if (dx<=1&&dy<=1&&(dx||dy)) {
+        if      (isBox(c._mx,c._my))  c.classList.add('hl-pickup');
+        else if (gItem(c._mx,c._my))  c.classList.add('hl-item');
+      }
+    }
+  }
+  if (actionMode==='attack') {
+    const wpn=getWeapon(); const r=wpn?wpn.range:0;
+    for (const c of cells) {
+      const dx=c._mx-playerPos.x, dy=c._my-playerPos.y;
+      const adx=Math.abs(dx), ady=Math.abs(dy);
+      // tylko w liniach kardynalnych (nie ukos)
+      const cardinal = (dx===0 && ady>0 && ady<=r) || (dy===0 && adx>0 && adx<=r);
+      if (cardinal && (bots.some(b=>b.alive&&b.pos.x===c._mx&&b.pos.y===c._my) || (boss&&boss.alive&&boss.pos.x===c._mx&&boss.pos.y===c._my)))
+        c.classList.add('hl-attack');
+    }
+  }
+
+  if (playerShield > 0) {
+    document.getElementById('hp-bar').style.width  = Math.min(100,playerShield)+'%';
+    document.getElementById('hp-bar').style.background = 'linear-gradient(90deg,#3aa0ff,#44ddff)';
+    document.getElementById('hp-text').textContent = '🛡️ '+playerShield;
+  } else {
+    document.getElementById('hp-bar').style.width  = Math.max(0,playerHP)/MAX_HP*100+'%';
+    document.getElementById('hp-bar').style.background = '';
+    document.getElementById('hp-text').textContent = Math.max(0,playerHP)+' / '+MAX_HP;
+  }
+  document.getElementById('turn-count').textContent = turn;
+  document.getElementById('bots-alive').textContent = bots.filter(b=>b.alive).length + 1;
+  const si=STORM_EVERY-(turnsSinceStorm%STORM_EVERY);
+  document.getElementById('storm-in').textContent = si===0?'⚠️':si;
+  renderMinimap();
+}
+
+function renderMinimap() {
+  const cv = document.getElementById('minimap');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.clearRect(0,0,W,H);
+  const cell = W / MAP_SIZE;
+  // Tło
+  ctx.fillStyle = '#1a0a2e';
+  ctx.fillRect(0,0,W,H);
+  // Burza
+  if (storm.active) {
+    ctx.fillStyle = '#6a3a8e99';
+    for (let x=0;x<MAP_SIZE;x++) for (let y=0;y<MAP_SIZE;y++) {
+      if (isStorm(x,y)) ctx.fillRect(x*cell,y*cell,cell,cell);
+    }
+  }
+  // Złoty kwadrat (jeśli nie zużyty)
+  if (forgeTile) {
+    ctx.fillStyle = '#ffe100';
+    ctx.fillRect(forgeTile.x*cell, forgeTile.y*cell, cell, cell);
+  }
+  // Boss (jeśli żyje)
+  if (boss && boss.alive) {
+    ctx.fillStyle = '#ff2222';
+    ctx.beginPath();
+    ctx.arc(boss.pos.x*cell+cell/2, boss.pos.y*cell+cell/2, Math.max(2,cell*0.6), 0, Math.PI*2);
+    ctx.fill();
+  }
+  // Gracz
+  ctx.fillStyle = '#44ddff';
+  ctx.beginPath();
+  ctx.arc(playerPos.x*cell+cell/2, playerPos.y*cell+cell/2, Math.max(2,cell*0.6), 0, Math.PI*2);
+  ctx.fill();
+}
+
+const setLog  = msg => document.getElementById('log').textContent = msg;
+const setEqLog = () => {
+  const parts = [];
+  for (let i = 0; i < 3; i++) {
+    const it = playerEq[i];
+    if (it) {
+      const cnt = (it.id === 'medkit' && (it.count||1) > 1) ? ` x${it.count}` : '';
+      parts.push(`[${it.name}${cnt}]`);
+    } else {
+      parts.push(`[${i+1}]pusty`);
+    }
+  }
+  const itemPart = playerItemSlot ? `🔹[${playerItemSlot.name}]` : '🔹[Item]pusty';
+  document.getElementById('eq-log').textContent = 'EQ: ' + parts.join(' · ') + ' · ' + itemPart;
+};
+const renderItemSlot = () => {
+  const slot = document.getElementById('item-slot');
+  if (!slot) return;
+  slot.innerHTML = playerItemSlot ? itemImgHTML(playerItemSlot,'eq-item-img') : '';
+  slot.title = playerItemSlot ? `${playerItemSlot.name}` : 'Slot na Item (Luneta / Medalion / Buty)';
+  updateViewSize();
+  updateDiagControls();
+};
+const inBound = (x,y) => x>=0&&x<MAP_SIZE&&y>=0&&y<MAP_SIZE;
+const cDist   = (ax,ay,bx,by) => Math.max(Math.abs(ax-bx),Math.abs(ay-by));
+const cellAt  = (mx,my) => cells.find(c=>c._mx===mx&&c._my===my)||null;
+
+function setCtrl(on) {
+  ['btn-up','btn-left','btn-right','btn-down','btn-up-left','btn-up-right','btn-down-left','btn-down-right']
+    .forEach(id=>document.getElementById(id).classList.toggle('disabled', !on));
+}
+
+function updateDiagControls() {
+  const show = playerHasButy();
+  ['btn-up-left','btn-up-right','btn-down-left','btn-down-right']
+    .forEach(id=>document.getElementById(id).classList.toggle('show', show));
+}
+
+// Aplikuje obrażenia do celu mającego pola hp i shield (boty, boss).
+// Najpierw zużywa osłonę, reszta trafia w HP. Zwraca true jeśli cel umarł.
+function applyDamageTo(target, dmg) {
+  let remaining = dmg;
+  if (target.shield > 0) {
+    const absorbed = Math.min(target.shield, remaining);
+    target.shield -= absorbed;
+    remaining -= absorbed;
+  }
+  target.hp -= remaining;
+  return target.hp <= 0;
+}
+// Aplikuje obrażenia graczowi (zmienne globalne playerHP/playerShield).
+function applyDamageToPlayer(dmg) {
+  let remaining = dmg;
+  if (playerShield > 0) {
+    const absorbed = Math.min(playerShield, remaining);
+    playerShield -= absorbed;
+    remaining -= absorbed;
+  }
+  playerHP -= remaining;
+  return playerHP <= 0;
+}
+
+function occupied(x,y,skip) {
+  if (x===playerPos.x&&y===playerPos.y) return true;
+  if (isBox(x,y)) return true;
+  if (gItem(x,y)) return true;
+  if (boss && boss.alive && boss.pos.x===x && boss.pos.y===y) return true;
+  for (const b of bots) if (b!==skip&&b.alive&&b.pos.x===x&&b.pos.y===y) return true;
+  return false;
+}
+
+const adjPickup = () => {
+  for (let dx=-1;dx<=1;dx++) for (let dy=-1;dy<=1;dy++) {
+    if (!dx&&!dy) continue;
+    if (isBox(playerPos.x+dx,playerPos.y+dy)||gItem(playerPos.x+dx,playerPos.y+dy)) return true;
+  }
+  return false;
+};
+
+const canAtk = () => {
+  if (playerHealTurns > 0) return false;
+  const it = getActiveItem();
+  if (!it) return false;
+  // Na kuźni z bronią – nie można atakować (tylko ulepszać)
+  if (onForgeTile() && it.type === 'weapon' && !it.upgraded) return false;
+  if (it.type === 'weapon')
+    return bots.some(b=>b.alive&&(
+      (b.pos.x===playerPos.x && Math.abs(b.pos.y-playerPos.y)<=it.range && b.pos.y!==playerPos.y) ||
+      (b.pos.y===playerPos.y && Math.abs(b.pos.x-playerPos.x)<=it.range && b.pos.x!==playerPos.x)
+    )) || (boss && boss.alive && (
+      (boss.pos.x===playerPos.x && Math.abs(boss.pos.y-playerPos.y)<=it.range && boss.pos.y!==playerPos.y) ||
+      (boss.pos.y===playerPos.y && Math.abs(boss.pos.x-playerPos.x)<=it.range && boss.pos.x!==playerPos.x)
+    ));
+  if (it.id === 'medkit') return playerHP < MAX_HP;
+  if (it.id === 'mikstura') return true;
+  return false;
+};
+
+function updBtns() {
+  const pb=document.getElementById('btn-pickup');
+  const ab=document.getElementById('btn-attack');
+  if (playerHealTurns > 0) {
+    pb.className='btn-action off'; pb.textContent='📦 PODNIEŚ';
+    ab.className='btn-action heal-mode'; ab.textContent='💊 LECZENIE…';
+    return;
+  }
+  if (playerShieldTurns > 0) {
+    pb.className='btn-action off'; pb.textContent='📦 PODNIEŚ';
+    ab.className='btn-action heal-mode'; ab.textContent='🧪 PICIE…';
+    return;
+  }
+  const it = getActiveItem();
+  let atkLabel = '⚔️ ATAK';
+  if (it && it.id === 'medkit') atkLabel = '💊 UŻYJ';
+  else if (it && it.id === 'mikstura') atkLabel = '🧪 PIJ';
+  else if (it && it.id === 'bow') atkLabel = '🏹 STRZAŁ';
+  else if (it && it.id === 'kula') atkLabel = '🔮 RZUT';
+  else if (it && it.id === 'scope') atkLabel = '🔭 PASYWNY';
+
+  // Na kuźni z bronią → przycisk ULEPSZ zamiast ATAK
+  if (onForgeTile() && it && it.type === 'weapon' && !it.upgraded) {
+    pb.className='btn-action '+(adjPickup()&&!playerHealTurns?'on':'off'); pb.textContent='📦 PODNIEŚ';
+    ab.className='btn-action on'; ab.textContent='⚡ ULEPSZ';
+    ab.style.background='linear-gradient(135deg,#ffe100,#ff8800)'; ab.style.borderColor='#ffe100'; ab.style.color='#1a0a2e';
+    return;
+  }
+  ab.style.background=''; ab.style.borderColor=''; ab.style.color='';  if (actionMode==='pickup') {
+    pb.className='btn-action active-mode'; pb.textContent='❌ ANULUJ';
+    ab.className='btn-action off';         ab.textContent=atkLabel;
+  } else if (actionMode==='attack') {
+    pb.className='btn-action off';         pb.textContent='📦 PODNIEŚ';
+    ab.className='btn-action active-mode'; ab.textContent='❌ ANULUJ';
+  } else {
+    pb.className='btn-action '+(adjPickup()&&!playerHealTurns?'on':'off'); pb.textContent='📦 PODNIEŚ';
+    ab.className='btn-action '+(canAtk()?'on':'off');                      ab.textContent=atkLabel;
+  }
+}
+
+function onPickupBtn() {
+  if (gameOver||botPhase||playerHealTurns>0) return;
+  if (actionMode==='pickup') { actionMode=null; renderAll(false); updBtns(); return; }
+  if (!adjPickup()) return;
+  actionMode='pickup';
+  setLog('Kliknij pole obok siebie — 📦 skrzynka lub item na ziemi');
+  renderAll(false); updBtns();
+}
+
+function onAttackBtn() {
+  if (gameOver||botPhase||playerHealTurns>0) return;
+  // Tryb kuźni – ulepsz broń
+  if (canForge()) { doForge(); return; }
+  const it = getActiveItem();
+  if (it && it.id === 'medkit') {
+    if (playerHP >= MAX_HP) { setLog('HP jest już pełne!'); return; }
+    playerHealTurns = it.healTurns;
+    // zmniejsz stack lub usuń slot
+    if ((it.count || 1) > 1) {
+      playerEq[eqActive] = { ...it, count: it.count - 1 };
+    } else {
+      playerEq[eqActive] = null;
+    }
+    questProgress('use_medkit', 1);
+    playSound('heal');
+    renderEq(); updateHealUI();
+    setLog(`💊 Zaczynasz się leczyć! (+${it.healAmt}HP przez ${it.healTurns} tury) — naciśnij kierunek aby kontynuować!`);
+    endTurn(`💊 Leczenie rozpoczęte! (tura 1/${it.healTurns})`);
+    return;
+  }
+  if (it && it.id === 'mikstura') {
+    playerShieldTurns = it.drinkTurns;
+    if ((it.count || 1) > 1) {
+      playerEq[eqActive] = { ...it, count: it.count - 1 };
+    } else {
+      playerEq[eqActive] = null;
+    }
+    playSound('heal');
+    renderEq(); updateHealUI();
+    setLog(`🧪 Zaczynasz pić miksturę! (+${it.shieldAmt} osłony po ${it.drinkTurns} turach) — naciśnij kierunek aby kontynuować!`);
+    endTurn(`🧪 Picie rozpoczęte! (tura 1/${it.drinkTurns})`);
+    return;
+  }
+  if (actionMode==='attack') { actionMode=null; renderAll(false); updBtns(); return; }
+  if (!canAtk()) return;
+  actionMode='attack';
+  setLog(`Wybierz cel! ${it.name} | DMG:${it.dmg} | Zasięg:${it.range}`);
+  renderAll(false); updBtns();
+}
+
+function onCellClick(e) {
+  if (gameOver||botPhase||!actionMode) return;
+  const mx=e.currentTarget._mx, my=e.currentTarget._my;
+  if (actionMode==='pickup') doPickup(mx,my);
+  else if (actionMode==='attack') doAttack(mx,my);
+}
+
+function doPickup(mx,my) {
+  const dx=Math.abs(mx-playerPos.x), dy=Math.abs(my-playerPos.y);
+  if (dx>1||dy>1||(!dx&&!dy)) { setLog('Wybierz pole obok siebie!'); return; }
+  const gi=gItem(mx,my);
+  if (gi) {
+    remGnd(mx,my);
+    const isItemSlotItem = ITEM_SLOT_IDS.includes(gi.item.id);
+    const wasFullEq = playerEq.every(s=>s!==null);
+    const droppedItem = (!isItemSlotItem && wasFullEq) ? playerEq[eqActive] : (isItemSlotItem && playerItemSlot) ? playerItemSlot : null;
+    const sl=addToEq(gi.item, mx, my); actionMode=null;
+    questProgress('pick_items', 1);
+    if (tutActive) tutOnItemPicked(gi.item);
+    let msg = `Podniesiono ${gi.item.emoji} ${gi.item.name}${isItemSlotItem ? ' → slot ITEM' : ` → slot ${typeof sl==='number'?sl+1:sl}`}!`;
+    if (droppedItem) msg += ` Upuszczono ${droppedItem.emoji} ${droppedItem.name}`;
+    endTurn(msg); return;
+  }
+  if (isBox(mx,my)) {
+    remBox(mx,my);
+    let item;
+    if (tutActive && tutStep === 0) {
+      // Tutorial: guaranteed sword drop + trigger step
+      item = { ...ITEM_POOL.find(i => i.id === 'sword') };
+      groundItems.push({x:mx,y:my,item}); actionMode=null;
+      tutOnBoxOpen(mx, my);
+      endTurn(`📦 Skrzynka otwarta! ⚔️ Miecz wypadł na ziemię!`);
+    } else {
+      item=rndItem();
+      groundItems.push({x:mx,y:my,item}); actionMode=null;
+      endTurn(`📦 Skrzynka otwarta! ${item.emoji} ${item.name} wypadło na ziemię!`);
+    }
+    return;
+  }
+  actionMode=null; setLog('Puste pole.'); renderAll(false); updBtns();
+}
+
+function doAttack(mx,my) {
+  const wpn=getWeapon(); if (!wpn) { actionMode=null; return; }
+  const dx=mx-playerPos.x, dy=my-playerPos.y;
+  const adx=Math.abs(dx), ady=Math.abs(dy);
+  // brak ataku ukośnego
+  if (dx!==0 && dy!==0) { setLog('Nie można atakować ukośnie!'); return; }
+  if (adx>wpn.range||ady>wpn.range) { setLog('Poza zasięgiem!'); return; }
+  const bot=bots.find(b=>b.alive&&b.pos.x===mx&&b.pos.y===my);
+  const bossHit = boss && boss.alive && boss.pos.x===mx && boss.pos.y===my;
+  if (!bot && !bossHit) { actionMode=null; setLog('Brak wroga na tym polu.'); renderAll(false); updBtns(); return; }
+  if (bossHit) {
+    if (wpn.id === 'sword') { playSound('sword'); questProgress('sword_dmg', wpn.dmg); }
+    else if (wpn.id === 'bow') { playSound('bow'); questProgress('bow_dmg', wpn.dmg); }
+    else if (wpn.id === 'kula') { playSound('sword'); }
+    const died = applyDamageTo(boss, wpn.dmg);
+    if (died) {
+      boss.alive = false;
+      if (!gItem(boss.pos.x,boss.pos.y)) groundItems.push({ x:boss.pos.x, y:boss.pos.y, item:{...boss.weapon} });
+      questProgress('kill_bots', 1);
+      if (currentSave){if(!currentSave.xp)currentSave.xp=0;currentSave.xp+=20;currentSave.level=Math.floor(currentSave.xp/100)+1;currentSave.totalKills=(currentSave.totalKills||0)+1;currentSave.totalBossKills=(currentSave.totalBossKills||0)+1;persistCurrentSave();}
+    }
+    const c=cellAt(mx,my);
+    if (c) { c.classList.remove('flash-hit'); void c.offsetWidth; c.classList.add('flash-hit'); }
+    actionMode=null;
+    endTurn(died ? `${wpn.emoji} BOSS 😈 pokonany! 💥 Wypadł jego łuk!` : `${wpn.emoji} -${wpn.dmg}HP → BOSS 😈 (${boss.hp}HP)`);
+    return;
+  }
+  const died = applyDamageTo(bot, wpn.dmg);
+  if (wpn.id === 'sword') { playSound('sword'); questProgress('sword_dmg', wpn.dmg); }
+  else if (wpn.id === 'bow') { playSound('bow'); questProgress('bow_dmg', wpn.dmg); }
+  else if (wpn.id === 'kula') { playSound('sword'); }
+  if (died) {
+    bot.alive=false; botDropLoot(bot); questProgress('kill_bots', 1);
+    if(currentSave){if(!currentSave.xp)currentSave.xp=0;currentSave.xp+=20;currentSave.level=Math.floor(currentSave.xp/100)+1;currentSave.totalKills=(currentSave.totalKills||0)+1;persistCurrentSave();}
+    if (tutActive) { setTimeout(() => tutOnBotKilled(), 400); }
+  }
+  const c=cellAt(mx,my);
+  if (c) { c.classList.remove('flash-hit'); void c.offsetWidth; c.classList.add('flash-hit'); }
+  actionMode=null;
+  endTurn(died ? `${wpn.emoji} Przeciwnik pokonany! 💥` : `${wpn.emoji} -${wpn.dmg}HP → Przeciwnik (${bot.hp}HP)`);
+}
+
+function bossShoot() {
+  if (!boss || !boss.alive || gameOver) return '';
+  const wpn = boss.weapon;
+  const inCardinalRange = (ax,ay,bx,by,r) => (ax===bx && Math.abs(ay-by)<=r && ay!==by) || (ay===by && Math.abs(ax-bx)<=r && ax!==bx);
+  const targets = [];
+  if (inCardinalRange(boss.pos.x,boss.pos.y,playerPos.x,playerPos.y,wpn.range)) targets.push({ type:'player' });
+  for (const o of bots) {
+    if (!o.alive || o.healTurns > 0) continue;
+    if (inCardinalRange(boss.pos.x,boss.pos.y,o.pos.x,o.pos.y,wpn.range)) targets.push({ type:'bot', bot:o });
+  }
+  if (!targets.length) return '';
+  const t = targets[Math.floor(Math.random()*targets.length)];
+  playSound('bow');
+  if (t.type === 'player') {
+    const died = applyDamageToPlayer(wpn.dmg);
+    vibrateHit('enemy');
+    const c = cellAt(playerPos.x,playerPos.y);
+    if (c) { c.classList.remove('flash-hit'); void c.offsetWidth; c.classList.add('flash-hit'); }
+    if (died) { endGame(false,'😈 Boss cię trafił i pokonał! 💀'); return ` | 😈🏹GRACZ!`; }
+    return ` | 😈🏹GRACZ-${wpn.dmg}(${Math.max(0,playerHP)})`;
+  } else {
+    const o = t.bot;
+    const died = applyDamageTo(o, wpn.dmg);
+    const c = cellAt(o.pos.x,o.pos.y);
+    if (c) { c.classList.remove('flash-hit'); void c.offsetWidth; c.classList.add('flash-hit'); }
+    if (died) { o.alive = false; botDropLoot(o); return ` | 😈🏹bot💥`; }
+    return ` | 😈🏹bot-${wpn.dmg}(${o.hp})`;
+  }
+}
+
+function endTurn(msg) {
+  turn++; turnsSinceStorm++;
+  let sm='';
+  if (turnsSinceStorm>=STORM_EVERY) { turnsSinceStorm=0; advStorm(); sm=' ⚠️ Burza!'; }
+  let healMsg='';
+  if (playerHealTurns > 0) {
+    const medkit = ITEM_POOL.find(i=>i.id==='medkit');
+    const hpPerTurn = Math.floor(medkit.healAmt / medkit.healTurns);
+    playerHP = Math.min(MAX_HP, playerHP + hpPerTurn);
+    playerHealTurns--;
+    healMsg = ` 💊+${hpPerTurn}HP`;
+    updateHealUI();
+    const c=cellAt(playerPos.x,playerPos.y);
+    if (c) { c.classList.remove('flash-heal'); void c.offsetWidth; c.classList.add('flash-heal'); }
+    if (playerHealTurns === 0) { healMsg += ' ✅ Leczenie zakończone!'; }
+  }
+  if (playerShieldTurns > 0) {
+    playerShieldTurns--;
+    if (playerShieldTurns === 0) {
+      const mikstura = ITEM_POOL.find(i=>i.id==='mikstura');
+      playerShield += mikstura.shieldAmt;
+      healMsg += ` 🧪+${mikstura.shieldAmt}🛡️ ✅ Picie zakończone!`;
+    } else {
+      healMsg += ` 🧪 picie…`;
+    }
+    updateHealUI();
+    const c=cellAt(playerPos.x,playerPos.y);
+    if (c) { c.classList.remove('flash-heal'); void c.offsetWidth; c.classList.add('flash-heal'); }
+  }
+  if (playerItemSlot && playerItemSlot.id === 'medalion') {
+    playerHP = Math.min(MAX_HP, playerHP + playerItemSlot.hpPerTurn);
+    healMsg += ` 🏅+${playerItemSlot.hpPerTurn}HP`;
+    const c=cellAt(playerPos.x,playerPos.y);
+    if (c) { c.classList.remove('flash-heal'); void c.offsetWidth; c.classList.add('flash-heal'); }
+  }
+  let dm='';
+  if (isStorm(playerPos.x,playerPos.y)) { const sd=stormDmg(); applyDamageToPlayer(sd); dm=` 🌪️-${sd}(${playerShield>0?'🛡️'+playerShield:Math.max(0,playerHP)+'HP'})`; vibrateHit('storm'); }
+  const bossMsg = bossShoot();
+  if (gameOver) { renderAll(false); return; }
+  renderAll(false); updBtns();
+  if (playerHP<=0)            { endGame(false,'Zginąłeś!'); return; }
+  if (!bots.some(b=>b.alive)) {
+    if (tutActive) { setCtrl(true); botPhase=false; return; }
+    endGame(true,'Wszyscy przeciwnicy wyeliminowani! 🏆'); return;
+  }
+  setCtrl(false); botPhase=true;
+  setLog(msg+sm+healMsg+dm+bossMsg+' | ⏳ Inni gracze wykonują ruch…');
+  runBots(0,[]);
+}
+
+function move(dx,dy) {
+  if (gameOver||botPhase) return;
+  if (dx!==0 && dy!==0 && !playerHasButy()) { setLog('Potrzebujesz 👢 Butów aby chodzić na ukos!'); return; }
+  if (playerHealTurns > 0) { endTurn('💊 Leczenie w toku…'); return; }
+  if (playerShieldTurns > 0) { endTurn('🧪 Picie w toku…'); return; }
+  if (actionMode) { actionMode=null; renderAll(false); updBtns(); }
+  const nx=playerPos.x+dx, ny=playerPos.y+dy;
+  if (!inBound(nx,ny))      { setLog('Nie możesz tam iść!'); return; }
+  if (occupied(nx,ny,null)) { setLog('Coś blokuje drogę!');  return; }
+  playerPos.x=nx; playerPos.y=ny;
+  if (tutActive) tutOnMove();
+  let pickMsg='';
+  const gi=gItem(nx,ny);
+  if (gi) {
+    remGnd(nx,ny);
+    const isItemSlotItem = ITEM_SLOT_IDS.includes(gi.item.id);
+    const wasFullEq = playerEq.every(s=>s!==null);
+    const droppedItem = (!isItemSlotItem && wasFullEq) ? playerEq[eqActive] : (isItemSlotItem && playerItemSlot) ? playerItemSlot : null;
+    addToEq(gi.item, nx, ny);
+    questProgress('pick_items', 1);
+    pickMsg = ` | ${gi.item.emoji} podniesiono!`;
+    if (droppedItem) pickMsg += ` Upuszczono ${droppedItem.emoji}`;
+  }
+  turn++; turnsSinceStorm++;
+  let sm='';
+  if (turnsSinceStorm>=STORM_EVERY) { turnsSinceStorm=0; advStorm(); sm=`⚠️ Burza!`; }
+  let dm='';
+  if (isStorm(nx,ny)) { const sd=stormDmg(); applyDamageToPlayer(sd); dm=` 🌪️-${sd}(${playerShield>0?'🛡️'+playerShield:Math.max(0,playerHP)+'HP'})`; vibrateHit('storm'); }
+  const bossMsg = bossShoot();
+  if (gameOver) { renderAll(true); return; }
+  renderAll(true); updBtns();
+  if (playerHP<=0)            { endGame(false,'Zginąłeś w burzy! 💀'); return; }
+  if (!bots.some(b=>b.alive)) {
+    if (tutActive) { return; } // tutorial handles win separately
+    endGame(true,'Wygrałeś! 🏆'); return;
+  }
+  let healMsg='';
+  if (playerItemSlot && playerItemSlot.id === 'medalion') {
+    playerHP = Math.min(MAX_HP, playerHP + playerItemSlot.hpPerTurn);
+    healMsg = ` 🏅+${playerItemSlot.hpPerTurn}HP`;
+    const c=cellAt(playerPos.x,playerPos.y);
+    if (c) { c.classList.remove('flash-heal'); void c.offsetWidth; c.classList.add('flash-heal'); }
+    renderAll(false); updBtns();
+  }
+  setCtrl(false); botPhase=true;
+  setLog(((sm+dm+pickMsg).trim()||'')+healMsg+bossMsg+' | ⏳ Inni gracze wykonują ruch…');
+  runBots(0,[]);
+}
+
+function runBots(idx, logs) {
+  while (idx<bots.length && !bots[idx].alive) idx++;
+  if (idx>=bots.length) {
+    botPhase=false; renderAll(false); updBtns(); updateHealUI();
+    if (!bots.some(b=>b.alive)) { endGame(true,'Wszyscy przeciwnicy pokonani! 🏆'); return; }
+    setCtrl(true);
+    setLog('Twój ruch.');
+    return;
+  }
+  setTimeout(()=>{
+    const entry = tutActive ? (tutBotTurn(), '') : botTurn(bots[idx],idx);
+    if (gameOver) return;
+    logs.push(entry); renderAll(false); runBots(idx+1,logs);
+  }, BOT_DELAY);
+}
+
+function botTurn(b, idx) {
+  if (!b.alive) return '';
+  const name=`B${idx+1}`;
+
+  // === LECZENIE W TOKU ===
+  if (b.healTurns > 0) {
+    const medkit = ITEM_POOL.find(i=>i.id==='medkit');
+    const hpPT = Math.floor(medkit.healAmt / medkit.healTurns);
+    b.hp = Math.min(MAX_HP, b.hp + hpPT);
+    b.healTurns--;
+    return `${name}💊+${hpPT}(${b.hp}HP)`;
+  }
+
+  // === PICIE MIKSTURY W TOKU ===
+  if (b.shieldTurns > 0) {
+    b.shieldTurns--;
+    if (b.shieldTurns === 0) {
+      const mikstura = ITEM_POOL.find(i=>i.id==='mikstura');
+      b.shield += mikstura.shieldAmt;
+      return `${name}🧪+${mikstura.shieldAmt}🛡️(${b.shield})`;
+    }
+    return `${name}🧪 pije…`;
+  }
+
+  // === MEDALION regen ===
+  if (b.itemSlot && b.itemSlot.id === 'medalion') {
+    b.hp = Math.min(MAX_HP, b.hp + b.itemSlot.hpPerTurn);
+  }
+
+  // === BURZA – DMG dla bota ===
+  if (isStorm(b.pos.x, b.pos.y)) {
+    const died = applyDamageTo(b, stormDmg());
+    if (died) { b.alive = false; botDropLoot(b); return `${name}🌪️ zginął w burzy! 💀`; }
+  }
+
+  const medkitIdx = b.eq.findIndex(i=>i&&i.id==='medkit');
+  const wpn = botBestWpn(b);
+  const aliveBots = bots.filter(o=>o.alive && o!==b);
+  const isLastBotVsPlayer = aliveBots.length === 0; // tylko ten bot i gracz żyją
+
+  // === DECYZJA o ucieczce – zaawansowana logika ===
+  const shouldFlee = () => {
+    if (selectedGameMode === 'chaos') return false; // W Chaos nie ma ucieczki
+    if (b.hp > 30) return false;           // HP OK – nie uciekaj
+    if (medkitIdx >= 0) return false;      // ma apteczkę – zaraz się uleczy
+    if (b.healTurns > 0) return false;     // już się leczy
+    if (isLastBotVsPlayer) return false;   // ostatni bot vs gracz – walcz do końca!
+    // Uciekaj tylko gdy jest sens – gdy są inne zagrożenia lub można zwiększyć dystans
+    const distToPlayer = cDist(b.pos.x, b.pos.y, playerPos.x, playerPos.y);
+    if (distToPlayer <= 1) return true;    // gracz jest tuż obok – definitywnie uciekaj
+    // Jeśli HP ≤ 15 – zawsze uciekaj (chyba że ostatni)
+    if (b.hp <= 15) return true;
+    // HP między 16–30: uciekaj tylko jeśli gracz jest blisko i jest więcej wrogów
+    return distToPlayer <= 3 && aliveBots.length > 0;
+  };
+
+  if (shouldFlee()) {
+    botFlee(b);
+    return `${name}💨 ucieka! (${b.hp}HP)`;
+  }
+
+  // === UŻYJ APTECZKI gdy HP ≤ 40 ===
+  const canHeal = selectedGameMode === 'chaos' ? true : !isStorm(b.pos.x,b.pos.y);
+  if (canHeal) {
+    if (medkitIdx>=0 && b.hp <= 40 && b.healTurns===0) {
+      const mk = b.eq[medkitIdx];
+      if ((mk.count || 1) > 1) {
+        b.eq[medkitIdx] = { ...mk, count: mk.count - 1 };
+      } else {
+        b.eq[medkitIdx] = null;
+      }
+      b.healTurns = mk.healTurns;
+      return `${name}💊 używa apteczki!`;
+    }
+  }
+
+  // === PIJ MIKSTURĘ gdy możliwe (zawsze gdy ma i nie pije) ===
+  const mikIdx = b.eq.findIndex(i=>i&&i.id==='mikstura');
+  const canDrink = selectedGameMode === 'chaos' ? true : !isStorm(b.pos.x,b.pos.y);
+  if (canDrink && b.shieldTurns===0 && mikIdx>=0) {
+    const mk = b.eq[mikIdx];
+    if ((mk.count || 1) > 1) {
+      b.eq[mikIdx] = { ...mk, count: mk.count - 1 };
+    } else {
+      b.eq[mikIdx] = null;
+    }
+    b.shieldTurns = mk.drinkTurns;
+    return `${name}🧪 pije miksturę!`;
+  }
+
+  // === ZŁOTY KWADRAT – bot idzie go użyć gdy jest blisko i jest wolny ===
+  if (forgeTile) {
+    const distToForge = cDist(b.pos.x, b.pos.y, forgeTile.x, forgeTile.y);
+    const upgradable = b.eq.filter(i=>i&&i.type==='weapon'&&!i.upgraded);
+    // Bot idzie na kuźnię jeśli ma broń do ulepszenia i jest w zasięgu ≤ 4 kroków
+    if (upgradable.length > 0 && distToForge <= 4) {
+      // Jeśli stoi na kuźni – ulepsz!
+      if (b.pos.x===forgeTile.x && b.pos.y===forgeTile.y) {
+        const chosen = upgradable[Math.floor(Math.random()*upgradable.length)];
+        const eqIdx = b.eq.findIndex(i=>i===chosen);
+        const newDmg = Math.floor(chosen.dmg * 1.5);
+        b.eq[eqIdx] = { ...chosen, dmg: newDmg, upgraded: true };
+        forgeTile = null;
+        playSound('goldforge');
+        return `${name}⚡ ulepsza ${chosen.name}! (DMG→${newDmg})`;
+      }
+      // Idź w kierunku kuźni
+      const dirs=[{x:0,y:-1},{x:0,y:1},{x:-1,y:0},{x:1,y:0}];
+  if (botHasButy(b)) dirs.push({x:-1,y:-1},{x:1,y:-1},{x:-1,y:1},{x:1,y:1});
+      const safe=[], any=[];
+      for (const d of dirs) {
+        const nx=b.pos.x+d.x, ny=b.pos.y+d.y;
+        if (!inBound(nx,ny)||occupied(nx,ny,b)) continue;
+        any.push({x:nx,y:ny});
+        if (!isStorm(nx,ny)) safe.push({x:nx,y:ny});
+      }
+      const pool = safe.length ? safe : any;
+      if (pool.length) {
+        const best = pool.reduce((a,p)=>cDist(p.x,p.y,forgeTile.x,forgeTile.y)<cDist(a.x,a.y,forgeTile.x,forgeTile.y)?p:a);
+        b.pos.x=best.x; b.pos.y=best.y;
+        return `${name}⚡→ idzie po ulepszenie`;
+      }
+    }
+  }
+
+  // === ATAKUJ jeśli wróg w zasięgu ===
+  if (wpn) {
+    const inCardinalRange = (ax,ay,bx,by,r) => (ax===bx && Math.abs(ay-by)<=r && ay!==by) || (ay===by && Math.abs(ax-bx)<=r && ax!==bx);
+    const targets = [];
+    if (inCardinalRange(b.pos.x,b.pos.y,playerPos.x,playerPos.y,wpn.range)) targets.push({ type:'player' });
+    for (const o of bots) {
+      if (!o.alive || o === b || o.healTurns > 0) continue;
+      if (inCardinalRange(b.pos.x,b.pos.y,o.pos.x,o.pos.y,wpn.range)) targets.push({ type:'bot', bot:o });
+    }
+    if (boss && boss.alive && inCardinalRange(b.pos.x,b.pos.y,boss.pos.x,boss.pos.y,wpn.range)) targets.push({ type:'boss' });
+    if (targets.length > 0) {
+      const t = targets[Math.floor(Math.random() * targets.length)];
+      if (t.type === 'player') {
+        const died = applyDamageToPlayer(wpn.dmg);
+        vibrateHit('enemy');
+        const c = cellAt(playerPos.x,playerPos.y);
+        if (c) { c.classList.remove('flash-hit'); void c.offsetWidth; c.classList.add('flash-hit'); }
+        if (died) { endGame(false,`Gracz ${b.skin || '🤖'} cię pokonał! 💀`); return `${name}${wpn.emoji}GRACZ!`; }
+        return `${name}${wpn.emoji}GRACZ-${wpn.dmg}(${Math.max(0,playerHP)})`;
+      } else if (t.type === 'boss') {
+        const died = applyDamageTo(boss, wpn.dmg);
+        const c = cellAt(boss.pos.x,boss.pos.y);
+        if (c) { c.classList.remove('flash-hit'); void c.offsetWidth; c.classList.add('flash-hit'); }
+        if (died) {
+          boss.alive = false;
+          if (!gItem(boss.pos.x,boss.pos.y)) groundItems.push({ x:boss.pos.x, y:boss.pos.y, item:{...boss.weapon} });
+          return `${name}${wpn.emoji}BOSS💥`;
+        }
+        return `${name}${wpn.emoji}BOSS-${wpn.dmg}(${boss.hp})`;
+      } else {
+        const o = t.bot;
+        const died = applyDamageTo(o, wpn.dmg);
+        if (died) { o.alive = false; botDropLoot(o); return `${name}${wpn.emoji}bot💥`; }
+        return `${name}${wpn.emoji}bot-${wpn.dmg}(${o.hp})`;
+      }
+    }
+  }
+
+  // === ZBIERZ PRZEDMIOTY ===
+  const hasEmptySlot = b.eq.some(s=>!s);
+  const wantsItem = hasEmptySlot || !botBestWpn(b) || !botHasScope(b) || !b.itemSlot;
+  if (wantsItem || hasEmptySlot) {
+    const gi=botAdjGItem(b);
+    if (gi) {
+      const picked = botAddEq(b,gi.item);
+      if (picked) { remGnd(gi.x,gi.y); return `${name}📦${gi.item.emoji}`; }
+    }
+    const bx=botAdjBox(b);
+    if (bx) { remBox(bx.x,bx.y); const it=rndItem(); groundItems.push({x:bx.x,y:bx.y,item:it}); return `${name}📦💥${it.emoji}`; }
+  }
+
+  botMove(b, wpn);
+  return `${name}🚶`;
+}
+
+function botDropLoot(b) {
+  const items = b.eq.filter(i=>i!==null);
+  if (b.itemSlot) items.push(b.itemSlot);
+  if (!items.length) return;
+  // Ulepszona broń zawsze wypada (100%)
+  const upgraded = items.filter(i=>i.upgraded);
+  if (upgraded.length > 0) {
+    const it = upgraded[Math.floor(Math.random()*upgraded.length)];
+    if (!gItem(b.pos.x,b.pos.y)) groundItems.push({ x:b.pos.x, y:b.pos.y, item:{...it} });
+    return;
+  }
+  const it = items[Math.floor(Math.random()*items.length)];
+  if (!gItem(b.pos.x,b.pos.y)) groundItems.push({ x:b.pos.x, y:b.pos.y, item:{...it} });
+}
+
+const botBestWpn = b => b.eq.filter(i=>i&&i.type==='weapon').sort((a,z)=>z.dmg-a.dmg)[0]||null;
+const botHasScope = b => (b.itemSlot && b.itemSlot.id==='scope') || b.eq.some(i=>i&&i.id==='scope');
+
+function botAddEq(b, item) {
+  if (ITEM_SLOT_IDS.includes(item.id)) {
+    if (!b.itemSlot) { b.itemSlot = item; return true; }
+    // replace if no itemSlot
+    return false;
+  }
+  // Apteczki stackują się do 3 w jednym slocie
+  if (item.id === 'medkit') {
+    for (let i = 0; i < 3; i++) {
+      if (b.eq[i] && b.eq[i].id === 'medkit' && (b.eq[i].count || 1) < 3) {
+        b.eq[i] = { ...b.eq[i], count: (b.eq[i].count || 1) + 1 };
+        return true;
+      }
+    }
+  }
+  // Mikstury stackują się do 2 w jednym slocie
+  if (item.id === 'mikstura') {
+    for (let i = 0; i < 3; i++) {
+      if (b.eq[i] && b.eq[i].id === 'mikstura' && (b.eq[i].count || 1) < 2) {
+        b.eq[i] = { ...b.eq[i], count: (b.eq[i].count || 1) + 1 };
+        return true;
+      }
+    }
+  }
+  if (item.type === 'weapon' && b.eq.some(i=>i&&i.id===item.id)) return false;
+  for (let i=0;i<3;i++) { if(!b.eq[i]){ b.eq[i]=item; return true; } }
+  const priority = (it) => {
+    if (!it) return -1;
+    if (it.id==='scope') return 0;
+    if (it.type==='weapon') return it.dmg;
+    return 5;
+  };
+  let worstIdx=0, worstVal=priority(b.eq[0]);
+  for (let i=1;i<3;i++) { const v=priority(b.eq[i]); if(v<worstVal){worstVal=v;worstIdx=i;} }
+  const dropped=b.eq[worstIdx];
+  if (dropped && !gItem(b.pos.x,b.pos.y)) groundItems.push({x:b.pos.x,y:b.pos.y,item:{...dropped}});
+  b.eq[worstIdx]=item;
+  return true;
+}
+
+function botAdjGItem(b) {
+  for (let dx=-1;dx<=1;dx++) for (let dy=-1;dy<=1;dy++) {
+    if (!dx&&!dy) continue;
+    const gi=gItem(b.pos.x+dx,b.pos.y+dy);
+    if (gi) return {x:b.pos.x+dx,y:b.pos.y+dy,item:gi.item};
+  } return null;
+}
+function botAdjBox(b) {
+  for (let dx=-1;dx<=1;dx++) for (let dy=-1;dy<=1;dy++) {
+    if (!dx&&!dy) continue;
+    if (isBox(b.pos.x+dx,b.pos.y+dy)) return {x:b.pos.x+dx,y:b.pos.y+dy};
+  } return null;
+}
+
+// Ucieczka bota – idzie jak najdalej od wszystkich przeciwników
+function botFlee(b) {
+  const dirs=[{x:0,y:-1},{x:0,y:1},{x:-1,y:0},{x:1,y:0}];
+  if (botHasButy(b)) dirs.push({x:-1,y:-1},{x:1,y:-1},{x:-1,y:1},{x:1,y:1});
+  const safe=[],any=[];
+  for (const d of dirs) {
+    const nx=b.pos.x+d.x,ny=b.pos.y+d.y;
+    if (!inBound(nx,ny)||occupied(nx,ny,b)) continue;
+    any.push({x:nx,y:ny});
+    if (!isStorm(nx,ny)) safe.push({x:nx,y:ny});
+  }
+  const pool=safe.length?safe:any; if(!pool.length) return;
+  // Suma odległości od wszystkich zagrożeń (gracz + inne boty)
+  const threats=[playerPos,...bots.filter(o=>o.alive&&o!==b).map(o=>o.pos)];
+  const score=p=>threats.reduce((s,t)=>s+cDist(p.x,p.y,t.x,t.y),0);
+  const best=pool.reduce((a,p)=>score(p)>score(a)?p:a);
+  b.pos.x=best.x; b.pos.y=best.y;
+}
+
+function botMove(b, wpn) {
+  const dirs=[{x:0,y:-1},{x:0,y:1},{x:-1,y:0},{x:1,y:0}];
+  if (botHasButy(b)) dirs.push({x:-1,y:-1},{x:1,y:-1},{x:-1,y:1},{x:1,y:1});
+  const safe=[],any=[];
+  for (const d of dirs) {
+    const nx=b.pos.x+d.x,ny=b.pos.y+d.y;
+    if (!inBound(nx,ny)||occupied(nx,ny,b)) continue;
+    any.push({x:nx,y:ny});
+    if (!isStorm(nx,ny)) safe.push({x:nx,y:ny});
+  }
+  if (isStorm(b.pos.x,b.pos.y) && selectedGameMode !== 'chaos') {
+    const ch=safe.length?safe[Math.floor(Math.random()*safe.length)]:any.length?any[Math.floor(Math.random()*any.length)]:null;
+    if(ch){b.pos.x=ch.x;b.pos.y=ch.y;} return;
+  }
+  const pool=safe.length?safe:any; if (!pool.length) return;
+  const _medkitIdx = b.eq.findIndex(i=>i&&i.id==='medkit');
+  if (b.hp <= 40 && _medkitIdx >= 0) return;
+  let target=null, minD=Infinity;
+  if (wpn) {
+    // Losowy cel – gracz lub inny bot
+    const enemies=[{pos:playerPos},...bots.filter(o=>o.alive&&o!==b)];
+    const pick=enemies[Math.floor(Math.random()*enemies.length)];
+    target=pick.pos;
+  } else {
+    // Sprawdź czy kuźnia jest dostępna i bot ma broń do ulepszenia
+    if (forgeTile) {
+      const upgradable = b.eq.filter(i=>i&&i.type==='weapon'&&!i.upgraded);
+      if (upgradable.length > 0) {
+        const d = cDist(b.pos.x,b.pos.y,forgeTile.x,forgeTile.y);
+        if (d < minD) { minD=d; target=forgeTile; }
+      }
+    }
+    for (const bx of boxes) {
+      const d=cDist(b.pos.x,b.pos.y,bx.x,bx.y);
+      if (d<minD) { minD=d; target=bx; }
+    }
+    for (const gi of groundItems) {
+      const d=cDist(b.pos.x,b.pos.y,gi.x,gi.y);
+      if (d<minD) { minD=d; target={x:gi.x,y:gi.y}; }
+    }
+  }
+  const ch=target
+    ? pool.reduce((best,p)=>cDist(p.x,p.y,target.x,target.y)<cDist(best.x,best.y,target.x,target.y)?p:best)
+    : pool[Math.floor(Math.random()*pool.length)];
+  if(ch){b.pos.x=ch.x;b.pos.y=ch.y;}
+}
+
+function endGame(win, msg) {
+  gameOver=true; renderAll(false); updateHealUI();
+  stopPlayTimer();
+  const botsLeft = bots.filter(b=>b.alive).length;
+  const payout = calcPayout(win, botsLeft);
+  let payoutMsg = '';
+  // Quest: zagraj 3 gry (zawsze), wygraj grę
+  questProgress('play_games', 1);
+  if (win) questProgress('win_game', 1);
+  if (currentSave) {
+    currentSave.wins += win ? 1 : 0;
+    currentSave.totalGames = (currentSave.totalGames || 0) + 1;
+    const actualPayout = addDailyEarned(payout);
+    currentSave.money = (currentSave.money || 0) + actualPayout;
+    currentSave.totalMoney = (currentSave.totalMoney || 0) + actualPayout;
+    // XP: +30 wygrana, +10 przegrana
+    const xpGain = win ? 30 : 10;
+    if (!currentSave.xp) currentSave.xp = 0;
+    currentSave.xp += xpGain;
+    currentSave.level = Math.floor(currentSave.xp / 100) + 1;
+    persistCurrentSave();
+    const place = win ? '🏆 1. miejsce' : botsLeft <= 1 ? '🥈 2. miejsce' : botsLeft <= 2 ? '🥉 3. miejsce' : '4.–8. miejsce';
+    const capNote = actualPayout < payout ? `\n⚠️ Dzienny limit 80💰 osiągnięty!` : '';
+    payoutMsg = `\n${place} → +${actualPayout} 💰 X-Money\n+${xpGain} XP${capNote}`;
+  }
+  document.getElementById('overlay-title').textContent = win?'🏆 WYGRANA!':'💀 PRZEGRANA!';
+  document.getElementById('overlay-msg').textContent   = msg+`\n\nTura: ${turn}.`+payoutMsg;
+  document.getElementById('overlay').style.display     = 'flex';
+}
+
+// ══════════════════════════════════════════════
+//  DAILY QUESTS SYSTEM
+// ══════════════════════════════════════════════
+const QUEST_POOL = [
+  { id:'sword_dmg',   icon:'⚔️',  name:'Zadaj 80 DMG mieczem',             type:'sword_dmg',   target:80  },
+  { id:'bow_dmg',     icon:'🏹',  name:'Zadaj 120 DMG łukiem',             type:'bow_dmg',     target:120 },
+  { id:'win_game',    icon:'🏆',  name:'Wygraj grę',                       type:'win_game',    target:1   },
+  { id:'play_games',  icon:'🎮',  name:'Zagraj 3 gry',                     type:'play_games',  target:3   },
+  { id:'use_medkit',  icon:'💊',  name:'Użyj 2 apteczek',                  type:'use_medkit',  target:2   },
+  { id:'pick_items',  icon:'📦',  name:'Podnieś 8 przedmiotów',            type:'pick_items',  target:8   },
+  { id:'kill_bots',   icon:'💀',  name:'Zabij 2 przeciwników',             type:'kill_bots',   target:2   },
+];
+const QUEST_REWARD_MONEY = 8;
+const QUEST_REWARD_XP    = 45;
+
+// Daily questy przechowywane w currentSave (per konto, nie per urządzenie)
+
+function getQuestDayKey() {
+  const d = new Date();
+  if (d.getHours() < 6) d.setDate(d.getDate() - 1);
+  return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+}
+
+function getDailyQuests() {
+  if (!currentSave) return { day: '', quests: [] };
+  const key = getQuestDayKey();
+  // Jeśli brak danych lub stary dzień – resetuj i losuj nowe
+  if (!currentSave.dailyQuests || currentSave.dailyQuests.day !== key) {
+    const shuffled = [...QUEST_POOL].sort(() => Math.random() - 0.5);
+    const picked = shuffled.slice(0, 3).map(q => ({
+      id: q.id, progress: 0, claimed: false
+    }));
+    currentSave.dailyQuests = { day: key, quests: picked };
+    persistCurrentSave();
+  }
+  return currentSave.dailyQuests;
+}
+
+function saveQuestData(data) {
+  if (!currentSave) return;
+  currentSave.dailyQuests = data;
+  persistCurrentSave();
+}
+
+
+// Postęp zadania (wywołuj z logiki gry)
+function questProgress(type, amount) {
+  if (!currentSave) return;
+  const data = getDailyQuests();
+  let changed = false;
+  data.quests.forEach(q => {
+    if (q.claimed) return;
+    const def = QUEST_POOL.find(p => p.id === q.id);
+    if (!def || def.type !== type) return;
+    q.progress = Math.min(def.target, (q.progress || 0) + amount);
+    changed = true;
+  });
+  if (changed) saveQuestData(data);
+}
+
+function claimQuest(idx) {
+  if (!currentSave) return;
+  const data = getDailyQuests();
+  const q    = data.quests[idx];
+  if (!q || q.claimed) return;
+  const def  = QUEST_POOL.find(p => p.id === q.id);
+  if (!def || q.progress < def.target) return;
+
+  q.claimed = true;
+  saveQuestData(data);
+
+  currentSave.money = (currentSave.money || 0) + QUEST_REWARD_MONEY;
+  currentSave.totalMoney = (currentSave.totalMoney || 0) + QUEST_REWARD_MONEY;
+  if (!currentSave.xp) currentSave.xp = 0;
+  currentSave.xp += QUEST_REWARD_XP;
+  currentSave.level = Math.floor(currentSave.xp / 100) + 1;
+  persistCurrentSave();
+  updateLobbyTopbar();
+  playSound('reward');
+  renderQuests();
+}
+
+function renderQuests() {
+  const list    = document.getElementById('quests-list');
+  const loginEl = document.getElementById('quests-login-msg');
+  const resetEl = document.getElementById('quests-reset');
+  if (!list) return;
+
+  // Reset timer
+  const now  = new Date();
+  const next = new Date();
+  next.setHours(6, 0, 0, 0);
+  if (now.getHours() >= 6) next.setDate(next.getDate() + 1);
+  const diff = next - now;
+  const hh   = Math.floor(diff / 3600000);
+  const mm   = Math.floor((diff % 3600000) / 60000);
+  if (resetEl) resetEl.textContent = `Reset za: ${hh}h ${mm}min`;
+
+  if (!currentSave) {
+    list.innerHTML = '';
+    loginEl.style.display = 'block';
+    return;
+  }
+  loginEl.style.display = 'none';
+
+  const data = getDailyQuests();
+  list.innerHTML = '';
+
+  data.quests.forEach((q, i) => {
+    const def  = QUEST_POOL.find(p => p.id === q.id);
+    if (!def) return;
+    const prog = Math.min(def.target, q.progress || 0);
+    const done = prog >= def.target;
+    const pct  = Math.round((prog / def.target) * 100);
+
+    let stateClass = '';
+    if (q.claimed) stateClass = 'claimed';
+    else if (done) stateClass = 'completed';
+
+    let actionHtml = '';
+    if (q.claimed) {
+      actionHtml = `<div class="quest-claimed-badge">✔ Odebrano</div>`;
+    } else if (done) {
+      actionHtml = `<button class="quest-claim-btn" onclick="claimQuest(${i})">🎁 ODBIERZ</button>`;
+    }
+
+    const card = document.createElement('div');
+    card.className = `quest-card ${stateClass}`;
+    card.innerHTML = `
+      <div class="quest-card-top">
+        <div class="quest-icon">${def.icon}</div>
+        <div class="quest-info">
+          <div class="quest-name">${def.name}</div>
+          <div class="quest-reward">+${QUEST_REWARD_MONEY} 💰 &nbsp;+${QUEST_REWARD_XP} XP</div>
+        </div>
+        ${actionHtml}
+      </div>
+      <div class="quest-prog-wrap">
+        <div class="quest-prog-bar" style="width:${q.claimed ? 100 : pct}%"></div>
+      </div>
+      <div class="quest-prog-label">${q.claimed ? '✔ Ukończono' : prog + ' / ' + def.target}</div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+document.addEventListener('keydown', e=>{
+  const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};
+  if (m[e.key]) { e.preventDefault(); move(...m[e.key]); }
+});
+
+// ══════════════════════════════════════════════
+//  TUTORIAL SYSTEM
+// ══════════════════════════════════════════════
+let tutActive = false;
+let tutStep = 0; // 0-based steps: 0=open box, 1=pick sword, 2=go forge, 3=upgrade, 4=storm, 5=kill bot, 6=done
+let tutBotSpawned = false;
+let tutStormStarted = false;
+let tutBotRef = null;
+
+const TUT_STEPS = [
+  { icon:'📦', title:'Otwórz skrzynkę', desc:'Podejdź do skrzynki 📦 obok (X:1, Y:2) i naciśnij PODNIEŚ.' },
+  { icon:'⚔️', title:'Podnieś miecz',   desc:'Skrzynka upuściła miecz! Podejdź do niego i naciśnij PODNIEŚ.' },
+  { icon:'⭐', title:'Wejdź na złoty kwadrat', desc:'Idź na środek mapy – na złoty kwadrat ⭐ (X:3, Y:3).' },
+  { icon:'⚡', title:'Ulepsz broń',     desc:'Stoisz na złotym kwadracie! Naciśnij przycisk ULEPSZ (pojawi się po wybraniu miecza).' },
+  { icon:'🌪️', title:'Uważaj na burzę!', desc:'Burza kurczy się ze wszystkich stron i zadaje obrażenia! Trzymaj się środka mapy.' },
+  { icon:'💀', title:'Pokonaj bota',    desc:'Bot się pojawił! Podejdź i zaatakuj go mieczem. Bot nie ucieka, ale atakuje!' },
+];
+
+function buildTutDots() {
+  const dotsEl = document.getElementById('tut-steps-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < TUT_STEPS.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'tut-dot' + (i < tutStep ? ' done' : i === tutStep ? ' active' : '');
+    dotsEl.appendChild(d);
+  }
+}
+
+function setTutStep(step) {
+  tutStep = step;
+  if (step >= TUT_STEPS.length) return; // done
+  const s = TUT_STEPS[step];
+  document.getElementById('tut-step-num').textContent = step + 1;
+  document.getElementById('tut-step-title').textContent = s.title;
+  document.getElementById('tut-step-desc').textContent  = s.desc;
+  document.getElementById('tut-step-icon').textContent  = s.icon;
+  buildTutDots();
+}
+
+function startTutorial() {
+  tutActive = true;
+  tutStep = 0;
+  tutBotSpawned = false;
+  tutStormStarted = false;
+  tutBotRef = null;
+
+  // Setup tutorial game state
+  showScreen('screen-game');
+  document.getElementById('screen-game').classList.add('tut-active');
+  document.getElementById('tut-overlay').classList.add('active');
+  document.getElementById('title').textContent = '📖 TUTORIAL – KIWI ROYALE V5.6';
+
+  // Override game config: 7x7 map, no storm yet
+  GCFG = { MAP_SIZE:7, VIEW_NORMAL:7, VIEW_SCOPE:7, BOX_COUNT:0, STORM_EVERY:99, MAX_HP:100,
+    CORNERS:[{x:0,y:0},{x:6,y:0},{x:0,y:6},{x:6,y:6}] };
+  applyGameConfig(GCFG);
+
+  gameOver = false; botPhase = false; actionMode = null;
+  playerHP = 100; playerEq = [null,null,null]; eqActive = 0; playerItemSlot = null;
+  playerHealTurns = 0; playerShield = 0; playerShieldTurns = 0;
+  turn = 1; turnsSinceStorm = 0;
+  VIEW = 7; HALF = 3;
+
+  // Forge in center 3,3
+  forgeTile = { x:3, y:3 };
+
+  // Storm: inactive at start
+  storm = { active:false, leftEdge:-1, rightEdge:7, topEdge:-1, bottomEdge:7 };
+  stormPhase = 0; stormSide = null;
+
+  // Player at x:1, y:1
+  playerPos = { x:1, y:1 };
+
+  // No regular bots yet
+  bots = [];
+
+  // No boss
+  boss = null;
+
+  // Boxes: empty (tutorial box placed manually as ground item below)
+  boxes = []; groundItems = [];
+
+  // Place a "box" at 1,2 (adjacent to player) — modeled as box tile
+  boxes.push({ x:1, y:2 });
+
+  // Override box drop: sword guaranteed (handled in onPickupBtn/tut logic)
+  buildGrid(); prevVX = -1; prevVY = -1;
+  selectEq(0);
+  updateHealUI();
+  renderAll(false); updBtns(); setCtrl(true);
+  setLog('Witaj w tutorialu! Wykonaj kroki pokazane u góry. 👆');
+  startPlayTimer();
+  setTutStep(0);
+}
+
+// Hook: called after box is opened in tutorial (step 0 → 1)
+function tutOnBoxOpen(x, y) {
+  if (!tutActive || tutStep !== 0) return;
+  // Drop sword 100% guaranteed
+  const sword = { ...ITEM_POOL.find(i => i.id === 'sword') };
+  groundItems.push({ x, y, item: sword });
+  renderAll(false);
+  setLog('📦 Skrzynka otwarta! Na ziemi leży miecz ⚔️ – podejdź i podnieś!');
+  setTutStep(1);
+}
+
+// Hook: called after item picked up in tutorial
+function tutOnItemPicked(item) {
+  if (!tutActive) return;
+  if (tutStep === 1 && item.id === 'sword') {
+    setLog('⚔️ Miecz podniesiony! Teraz idź na złoty kwadrat ⭐ w centrum mapy (X:3, Y:3).');
+    setTutStep(2);
+  }
+}
+
+// Hook: called when player moves (check forge step)
+function tutOnMove() {
+  if (!tutActive) return;
+  if (tutStep === 2 && forgeTile && playerPos.x === forgeTile.x && playerPos.y === forgeTile.y) {
+    setLog('⭐ Stoisz na złotym kwadracie! Wybierz miecz i naciśnij ULEPSZ.');
+    setTutStep(3);
+    updBtns();
+  }
+  // After storm warning, spawn bot on first move post-storm
+  if (tutStep === 4 && tutStormStarted && !tutBotSpawned) {
+    tutSpawnBot();
+  }
+}
+
+// Hook: called after forge action in tutorial
+function tutOnForge() {
+  if (!tutActive || tutStep !== 3) return;
+  setLog('⚡ Broń ulepszona! Za chwilę nadchodzi burza – trzymaj się środka mapy!');
+  setTutStep(4);
+  // Trigger storm after short delay
+  setTimeout(() => {
+    tutStartStorm();
+  }, 1200);
+}
+
+function tutStartStorm() {
+  if (!tutActive) return;
+  tutStormStarted = true;
+  // Activate storm from all sides simultaneously (shrink by 1 from each edge)
+  storm.active = true;
+  storm.leftEdge  = 0;
+  storm.rightEdge = 6;
+  storm.topEdge   = 0;
+  storm.bottomEdge= 6;
+  renderAll(false);
+  setLog('🌪️ Burza nadchodzi ze wszystkich stron! Zostań w centrum – burza zadaje 10 DMG/turę!');
+  // Spawn bot after another short delay
+  setTimeout(() => {
+    tutSpawnBot();
+  }, 800);
+}
+
+function tutSpawnBot() {
+  if (tutBotSpawned) return;
+  tutBotSpawned = true;
+  // Find random position not on player, not storm, not forge
+  const candidates = [];
+  for (let x = 1; x <= 5; x++) for (let y = 1; y <= 5; y++) {
+    if (x === playerPos.x && y === playerPos.y) continue;
+    if (forgeTile && x === forgeTile.x && y === forgeTile.y) continue;
+    if (isStorm(x, y)) continue;
+    candidates.push({x, y});
+  }
+  const pick = candidates.length
+    ? candidates[Math.floor(Math.random() * candidates.length)]
+    : { x:5, y:5 };
+
+  const sword = { ...ITEM_POOL.find(i => i.id === 'sword') };
+  tutBotRef = { pos:{...pick}, hp:60, alive:true, eq:[sword,null,null], healTurns:0, skin:'🤖', itemSlot:null, shield:0, shieldTurns:0 };
+  bots = [tutBotRef];
+  renderAll(false);
+  setLog('💀 Bot się pojawił! Podejdź do niego i zaatakuj mieczem ⚔️!');
+  setTutStep(5);
+  updBtns();
+}
+
+// Override bot AI in tutorial: bot doesn't move, only attacks if adjacent
+function tutBotTurn() {
+  if (!tutActive || !tutBotRef || !tutBotRef.alive) return;
+  const b = tutBotRef;
+  const wpn = b.eq.find(i => i && i.type === 'weapon');
+  if (!wpn) return;
+  // Only attack if player is adjacent (range 1)
+  const dx = Math.abs(b.pos.x - playerPos.x);
+  const dy = Math.abs(b.pos.y - playerPos.y);
+  if (dx <= wpn.range && dy === 0 && (dx !== 0 || dy !== 0) ||
+      dy <= wpn.range && dx === 0 && (dx !== 0 || dy !== 0)) {
+    const died = applyDamageToPlayer(wpn.dmg);
+    vibrateHit('enemy');
+    const c = cellAt(playerPos.x, playerPos.y);
+    if (c) { c.classList.remove('flash-hit'); void c.offsetWidth; c.classList.add('flash-hit'); }
+    if (died) {
+      endGame(false, 'Bot cię pokonał! 💀 Spróbuj jeszcze raz.');
+      return;
+    }
+    setLog(`🤖 Bot atakuje! -${wpn.dmg} HP (${Math.max(0, playerHP)} HP)`);
+  }
+  // Bot does NOT move
+}
+
+// Override endGame for tutorial bot kill
+function tutOnBotKilled() {
+  if (!tutActive || tutStep !== 5) return;
+  setLog('🏆 Brawo! Wygrałeś! Tutorial zakończony!');
+  setTutStep(6);
+  // Show win overlay briefly then show info screen
+  setTimeout(() => {
+    document.getElementById('tut-overlay').classList.remove('active');
+    document.getElementById('screen-game').classList.remove('tut-active');
+    document.getElementById('overlay').style.display = 'none';
+    showTutInfoScreen();
+  }, 1500);
+}
+
+function showTutInfoScreen() {
+  document.getElementById('tut-info-overlay').classList.add('active');
+}
+
+function onTutorialFinish() {
+  document.getElementById('tut-info-overlay').classList.remove('active');
+  document.getElementById('tut-overlay').classList.remove('active');
+  document.getElementById('screen-game').classList.remove('tut-active');
+  tutActive = false;
+
+  // Grant tutorial reward (not counted toward daily cap)
+  if (currentSave) {
+    if (!currentSave.tutorialDone) {
+      currentSave.money = (currentSave.money || 0) + 30;
+      currentSave.totalMoney = (currentSave.totalMoney || 0) + 30;
+      if (!currentSave.xp) currentSave.xp = 0;
+      currentSave.xp += 60;
+      currentSave.level = Math.floor(currentSave.xp / 100) + 1;
+      currentSave.tutorialDone = true;
+      persistCurrentSave();
+    }
+    updateLobbyTopbar();
+    playSound('reward');
+  }
+
+  document.getElementById('overlay').style.display = 'none';
+  showScreen('screen-lobby');
+  switchTab('lobby');
+}
+
+window.addEventListener('beforeunload', () => {
+  flushSessionTime();
+});
+
+// Start menu ambient music on first interaction
+(function() {
+  let started = false;
+  function onFirstInteraction() {
+    if (started) return;
+    started = true;
+    const activeScreen = document.querySelector('.screen.active');
+    if (activeScreen && activeScreen.id === 'screen-menu') {
+      startAmbient('menu');
+    }
+    document.removeEventListener('click', onFirstInteraction);
+    document.removeEventListener('touchstart', onFirstInteraction);
+    document.removeEventListener('keydown', onFirstInteraction);
+  }
+  document.addEventListener('click', onFirstInteraction);
+  document.addEventListener('touchstart', onFirstInteraction);
+  document.addEventListener('keydown', onFirstInteraction);
+})();
+</script>
+</body>
+</html>
